@@ -43,7 +43,7 @@ const CartPage = () => {
     mutate({
       distributorId:   items[0].distributorId,
       deliveryAddress: address,
-      deliveryDate:    deliveryDate,
+      dueDate:    deliveryDate,
       notes:           note,
       items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
     });
