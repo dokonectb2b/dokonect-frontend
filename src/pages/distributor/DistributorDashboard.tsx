@@ -160,7 +160,7 @@ export const DistributorDashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <SalesChart
-            data={salesTrend.map((s: any) => ({ sana: s.date, sotuv: s.sales }))}
+            data={salesTrend.map((s: any) => ({ date: s.date, revenue: s.sales || s.revenue || 0 }))}
             title="Sotuv dinamikasi (Oxirgi 7 kun)"
           />
         </div>
