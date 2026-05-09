@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Phone, Zap, UserPlus, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Mail, Lock, Phone, UserPlus, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../../api/api';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
+import DokonectLogo from '../../components/ui/DokonectLogo';
 
 export const LoginPage: React.FC = () => {
   const { setAuth } = useAuthStore();
@@ -15,90 +16,73 @@ export const LoginPage: React.FC = () => {
   const [password,     setPassword]     = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading,      setLoading]      = useState(false);
-  const [errorMsg,     setErrorMsg]     = useState('');   // ← xato state
+  const [errorMsg,     setErrorMsg]     = useState('');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setErrorMsg('');   // ← har submit da tozalash
-
+    setErrorMsg('');
     try {
       const response = await api.post('/api/auth/login', {
         ...(loginType === 'email' ? { email } : { phone }),
         password,
       });
-
       const payload      = response.data?.data ?? response.data;
       const user         = payload?.user        ?? payload;
       const accessToken  = payload?.token       ?? payload?.accessToken ?? '';
       const refreshToken = payload?.refreshToken ?? '';
-
-      if (!user?.id) {
-        setErrorMsg('Foydalanuvchi topilmadi');
-        return;
-      }
-
-      setAuth(
-        {
-          id:            user.id,
-          name:          user.name,
-          email:         user.email         ?? '',
-          phone:         user.phone         ?? '',
-          role:          user.role,
-          distributorId: user.distributorId ?? user.distributor?.id ?? undefined,
-          clientId:      user.clientId      ?? user.client?.id      ?? undefined,
-          driverId:      user.driverId      ?? user.driver?.id      ?? undefined,
-        },
-        accessToken,
-        refreshToken,
-      );
-
+      if (!user?.id) { setErrorMsg('Foydalanuvchi topilmadi'); return; }
+      setAuth({
+        id: user.id, name: user.name, email: user.email ?? '', phone: user.phone ?? '', role: user.role,
+        distributorId: user.distributorId ?? user.distributor?.id ?? undefined,
+        clientId:      user.clientId      ?? user.client?.id      ?? undefined,
+        driverId:      user.driverId      ?? user.driver?.id      ?? undefined,
+      }, accessToken, refreshToken);
       toast.success('Xush kelibsiz!');
-
       if (user.role === 'DISTRIBUTOR')                           navigate('/distributor/dashboard', { replace: true });
       else if (user.role === 'STORE' || user.role === 'CLIENT') navigate('/store/dashboard',       { replace: true });
       else if (user.role === 'DRIVER')                          navigate('/driver/dashboard',       { replace: true });
       else if (user.role === 'ADMIN')                           navigate('/admin/dashboard',        { replace: true });
       else                                                       navigate('/',                       { replace: true });
-
     } catch (error: any) {
-      const msg = error.response?.data?.message
-        || error.response?.data?.error
-        || `Xatolik (${error.response?.status || 'network'})`;
-      setErrorMsg(msg);   // ← sahifada ko'rsatish
-      console.log('❌ Login error:', error.response?.data);
+      setErrorMsg(error.response?.data?.message || error.response?.data?.error || `Xatolik (${error.response?.status || 'network'})`);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden font-sans">
-      <div className="absolute top-1/4 -left-20 w-80 h-80 bg-indigo-600/20 blur-[120px] rounded-full" />
-      <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-sky-600/20 blur-[120px] rounded-full" />
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
+      style={{ background: '#080C1A', fontFamily: "'DM Sans','Outfit','Inter',sans-serif" }}>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 w-full max-w-md shadow-2xl relative z-10"
-      >
+      {/* BG */}
+      <div className="absolute top-[10%] left-[10%] w-96 h-96 rounded-full blur-[130px] pointer-events-none" style={{ background: 'rgba(79,142,247,0.12)' }} />
+      <div className="absolute bottom-[10%] right-[10%] w-96 h-96 rounded-full blur-[130px] pointer-events-none" style={{ background: 'rgba(108,61,232,0.12)' }} />
+      <div className="absolute inset-0 opacity-[0.025] pointer-events-none"
+        style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,1) 1px,transparent 1px)', backgroundSize: '56px 56px' }} />
+
+      <motion.div initial={{ opacity: 0, scale: 0.96 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}
+        className="relative z-10 w-full max-w-md rounded-3xl p-8 border shadow-2xl"
+        style={{ background: 'rgba(14,20,37,0.95)', borderColor: 'rgba(255,255,255,0.09)', backdropFilter: 'blur(24px)' }}>
+
+        {/* Top accent line */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-px rounded-full"
+          style={{ background: 'linear-gradient(90deg,transparent,rgba(79,142,247,0.7),transparent)' }} />
+
         {/* Logo */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-indigo-600 rounded-3xl mb-6 shadow-2xl shadow-indigo-600/20 transform -rotate-6">
-            <Zap className="w-10 h-10 text-white fill-white" />
-          </div>
-          <h1 className="text-3xl font-black text-white tracking-tighter">
-            Doko<span className="text-indigo-400">nect</span>
-          </h1>
-          <p className="text-slate-400 mt-2 font-medium">B2B Platformaning kelajagi</p>
+        <div className="flex flex-col items-center mb-10">
+          <DokonectLogo size={52} className="text-white justify-center mb-3" />
+          <p className="text-slate-400 text-sm font-medium mt-1">B2B Platformaning kelajagi</p>
         </div>
 
         {/* Toggle */}
-        <div className="flex p-1 bg-white/5 rounded-2xl mb-8 border border-white/5">
+        <div className="flex p-1 rounded-2xl mb-7 border" style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.08)' }}>
           {(['phone', 'email'] as const).map((type) => (
             <button key={type} type="button" onClick={() => { setLoginType(type); setErrorMsg(''); }}
-              className={`flex-1 py-4 px-4 rounded-xl text-sm font-bold transition-all ${
-                loginType === type ? 'bg-white text-slate-900 shadow-xl' : 'text-slate-400 hover:text-white'
+              className={`flex-1 py-3.5 rounded-xl text-sm font-bold transition-all ${
+                loginType === type
+                  ? 'bg-white text-slate-900 shadow-lg'
+                  : 'text-slate-400 hover:text-white'
               }`}>
               {type === 'phone' ? 'Telefon' : 'Email'}
             </button>
@@ -106,103 +90,82 @@ export const LoginPage: React.FC = () => {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleLogin} className="space-y-4">
           {loginType === 'email' ? (
             <div>
-              <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                Email manzil
-              </label>
-              <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Email</label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-600" />
                 <input type="email" value={email} onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@dokonect.uz" required
-                  className="w-full pl-12 pr-4 py-5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:bg-white/10 transition-all font-medium" />
+                  className="w-full pl-11 pr-4 py-4 rounded-2xl text-white placeholder-slate-600 text-sm font-medium focus:outline-none transition-all border"
+                  style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.09)' }}
+                  onFocus={(e) => e.target.style.borderColor = 'rgba(79,142,247,0.5)'}
+                  onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.09)'} />
               </div>
             </div>
           ) : (
             <div>
-              <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-                Telefon raqam
-              </label>
-              <div className="relative group">
-                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Telefon raqam</label>
+              <div className="relative">
+                <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-600" />
                 <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
                   placeholder="+998901234567" required
-                  className="w-full pl-12 pr-4 py-5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:bg-white/10 transition-all font-medium" />
+                  className="w-full pl-11 pr-4 py-4 rounded-2xl text-white placeholder-slate-600 text-sm font-medium focus:outline-none transition-all border"
+                  style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.09)' }}
+                  onFocus={(e) => e.target.style.borderColor = 'rgba(79,142,247,0.5)'}
+                  onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.09)'} />
               </div>
             </div>
           )}
 
-          {/* Parol */}
           <div>
-            <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">
-              Parol
-            </label>
-            <div className="relative group">
-              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                required
-                className="w-full pl-12 pr-12 py-5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:bg-white/10 transition-all font-medium"
-              />
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Parol</label>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-slate-600" />
+              <input type={showPassword ? 'text' : 'password'} value={password}
+                onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required
+                className="w-full pl-11 pr-12 py-4 rounded-2xl text-white placeholder-slate-600 text-sm font-medium focus:outline-none transition-all border"
+                style={{ background: 'rgba(255,255,255,0.05)', borderColor: 'rgba(255,255,255,0.09)' }}
+                onFocus={(e) => e.target.style.borderColor = 'rgba(79,142,247,0.5)'}
+                onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.09)'} />
               <button type="button" onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors">
-                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-300 transition-colors">
+                {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
               </button>
             </div>
           </div>
 
-          {/* ── Xato xabari — sahifada doimiy ko'rinadi ── */}
           {errorMsg && (
-            <motion.div
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-start gap-3 bg-red-500/10 border border-red-500/30 rounded-2xl px-4 py-3"
-            >
+            <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+              className="flex items-start gap-3 px-4 py-3 rounded-2xl border"
+              style={{ background: 'rgba(239,68,68,0.08)', borderColor: 'rgba(239,68,68,0.2)' }}>
               <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
               <p className="text-sm text-red-300 font-medium">{errorMsg}</p>
             </motion.div>
           )}
 
-          <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
+          <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
             type="submit" disabled={loading}
-            className="w-full bg-indigo-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-600/20 hover:bg-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-2">
+            className="w-full py-4 text-white font-bold rounded-2xl text-sm transition-all disabled:opacity-50 mt-2"
+            style={{ background: 'linear-gradient(135deg,#4F8EF7 0%,#6C3DE8 100%)', boxShadow: '0 6px 24px rgba(79,142,247,0.3)' }}>
             {loading ? 'Kirish...' : 'Tizimga kirish'}
           </motion.button>
         </form>
 
-        {/* Register */}
-        <Link to="/register" className="block mt-4">
-          <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}
-            className="w-full flex items-center justify-center gap-2 py-4 bg-white/5 border border-white/10 rounded-2xl text-slate-300 hover:bg-white/10 hover:text-white transition-all font-black text-xs uppercase tracking-widest cursor-pointer">
-            <UserPlus className="w-4 h-4" />
-            Ro'yxatdan o'tish
+        <Link to="/register" className="block mt-3">
+          <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }}
+            className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl border text-slate-300 hover:text-white transition-all text-sm font-bold cursor-pointer"
+            style={{ background: 'rgba(255,255,255,0.04)', borderColor: 'rgba(255,255,255,0.09)' }}>
+            <UserPlus className="w-4 h-4" /> Ro'yxatdan o'tish
           </motion.div>
         </Link>
 
-        {/* Test Accounts */}
-        <div className="mt-6 p-5 bg-white/5 border border-white/10 rounded-[24px]">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
-            Test hisoblar (Parol: 123456)
-          </p>
-          <div className="space-y-3">
-            {[
-              { label: 'Distribyutor', phone: '+998901234567' },
-              { label: "Do'kon egasi", phone: '+998901234500' },
-              { label: 'Admin',        phone: '+998900000000' },
-            ].map(({ label, phone: p }) => (
-              <button key={p} type="button"
-                className="w-full flex items-center justify-between group cursor-pointer"
-                onClick={() => { setLoginType('phone'); setPhone(p); setPassword('123456'); setErrorMsg(''); }}>
-                <span className="text-xs font-bold text-slate-300 group-hover:text-white transition-colors">{label}</span>
-                <span className="text-[10px] font-mono text-slate-500">{p}</span>
-              </button>
-            ))}
-          </div>
+        {/* Back to landing */}
+        <div className="text-center mt-4">
+          <Link to="/" className="text-xs text-slate-600 hover:text-slate-400 transition-colors">
+            ← Bosh sahifaga qaytish
+          </Link>
         </div>
       </motion.div>
     </div>

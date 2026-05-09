@@ -4,6 +4,9 @@ import AppLayout from './components/layout/AppLayout';
 import AdminLayout from './components/layout/AdminLayout';
 import { useAuthStore } from './store/authStore';
 
+// Landing
+import LandingPage from './pages/LandingPage';
+
 // Auth
 import { LoginPage }  from './pages/auth/LoginPage';
 import RegisterPage   from './pages/auth/RegisterPage';
@@ -45,7 +48,7 @@ import FinancePage           from './pages/store/FinancePage';
 import StoreChatPage         from './pages/store/ChatPage';
 import CartPage              from './pages/store/CartPage';
 
-// --- ProtectedRoute -----------------------------------------------------------
+// ─── ProtectedRoute ───────────────────────────────────────────────────────────
 const ProtectedRoute = ({
   children,
   roles,
@@ -65,15 +68,15 @@ const ProtectedRoute = ({
   return <>{children}</>;
 };
 
-// --- HomeRedirect -------------------------------------------------------------
+// ─── HomeRedirect ─────────────────────────────────────────────────────────────
 const HomeRedirect = () => {
   const { isAuthenticated, user } = useAuthStore();
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!isAuthenticated) return <Navigate to="/" replace />;
   if (user?.role === 'ADMIN')                            return <Navigate to="/admin/dashboard"       replace />;
   if (user?.role === 'DISTRIBUTOR')                      return <Navigate to="/distributor/dashboard" replace />;
   if (user?.role === 'CLIENT' || user?.role === 'STORE') return <Navigate to="/store/dashboard"       replace />;
   if (user?.role === 'DRIVER')                           return <Navigate to="/driver/dashboard"      replace />;
-  return <Navigate to="/login" replace />;
+  return <Navigate to="/" replace />;
 };
 
 function App() {
@@ -82,11 +85,14 @@ function App() {
       <Toaster position="top-right" />
       <Routes>
 
-        {/* PUBLIC */}
+        {/* ── LANDING ── */}
+        <Route path="/" element={<LandingPage />} />
+
+        {/* ── PUBLIC ── */}
         <Route path="/login"    element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        {/* ADMIN */}
+        {/* ── ADMIN ── */}
         <Route path="/admin" element={<ProtectedRoute roles={['ADMIN']}><AdminLayout /></ProtectedRoute>}>
           <Route index               element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard"    element={<GlobalDashboard />} />
@@ -99,9 +105,9 @@ function App() {
           <Route path="analytics"    element={<AdminAnalyticsPage />} />
         </Route>
 
-        {/* APP LAYOUT */}
+        {/* ── APP LAYOUT ── */}
         <Route element={<AppLayout />}>
-          <Route path="/" element={<HomeRedirect />} />
+          <Route path="/home" element={<HomeRedirect />} />
 
           {/* DISTRIBUTOR */}
           <Route path="/distributor/dashboard"    element={<ProtectedRoute roles={['DISTRIBUTOR','ADMIN']}><DistributorDashboard /></ProtectedRoute>} />
