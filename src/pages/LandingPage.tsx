@@ -27,8 +27,9 @@ const Logo = ({ size = 36 }: { size?: number }) => (
 
 /* ─── Data ──────────────────────────────────────────────────────────────────── */
 const TEST_ACCOUNTS = [
-  { role: 'Distribyutor', nav: 'DISTRIBUTOR', phone: '+998901234567', password: '123456', icon: Truck, tag: 'Mahsulot sotish va boshqarish', color: '#4A90E2' },
-  { role: "Do'kon egasi", nav: 'CLIENT', phone: '+998901234500', password: '123456', icon: Store, tag: 'Mahsulot buyurtma qilish', color: '#7B5CE7' },
+  { role: 'Distribyutor', nav: 'DISTRIBUTOR', phone: '+998901234567', password: '123456', icon: Truck, tag: 'Mahsulot sotish va boshqarish', color: '#4A90E2', showOnMobile: false },
+  { role: "Do'kon egasi", nav: 'CLIENT', phone: '+998901234500', password: '123456', icon: Store, tag: 'Mahsulot buyurtma qilish', color: '#7B5CE7', showOnMobile: false },
+  { role: 'Haydovchi', nav: 'DRIVER', phone: '+998901234599', password: '123456', icon: Truck, tag: 'Yetkazib berish', color: '#00C2A8', showOnMobile: true },
 ];
 
 /* ─── Main ──────────────────────────────────────────────────────────────────── */
@@ -67,6 +68,7 @@ export default function LandingPage() {
       setShowDemo(false);
       if (user.role === 'DISTRIBUTOR') navigate('/distributor/dashboard', { replace: true });
       else if (user.role === 'STORE' || user.role === 'CLIENT') navigate('/store/dashboard', { replace: true });
+      else if (user.role === 'DRIVER') navigate('/driver/dashboard', { replace: true });
       else if (user.role === 'ADMIN') navigate('/admin/dashboard', { replace: true });
     } catch (e: any) {
       toast.error(e.response?.data?.message || 'Xatolik');
@@ -310,7 +312,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="space-y-3">
-                  {TEST_ACCOUNTS.map((acc) => (
+                  {TEST_ACCOUNTS.filter(acc => !acc.showOnMobile || window.innerWidth < 768).map((acc) => (
                     <button
                       key={acc.role}
                       onClick={() => handleDemo(acc)}
