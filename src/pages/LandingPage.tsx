@@ -27,9 +27,9 @@ const Logo = ({ size = 36 }: { size?: number }) => (
 
 /* ─── Data ──────────────────────────────────────────────────────────────────── */
 const TEST_ACCOUNTS = [
-  { role: 'Distribyutor', nav: 'DISTRIBUTOR', phone: '+998901234567', password: '123456', icon: Truck, tag: 'Mahsulot sotish va boshqarish', color: '#4A90E2', showOnMobile: false },
-  { role: "Do'kon egasi", nav: 'CLIENT', phone: '+998901234500', password: '123456', icon: Store, tag: 'Mahsulot buyurtma qilish', color: '#7B5CE7', showOnMobile: false },
-  { role: 'Haydovchi', nav: 'DRIVER', phone: '+998901234599', password: '123456', icon: Truck, tag: 'Yetkazib berish', color: '#00C2A8', showOnMobile: true },
+  { role: 'Distribyutor', nav: 'DISTRIBUTOR', phone: '+998901234567', password: '123456', icon: Truck, tag: 'Mahsulot sotish va boshqarish', color: '#4A90E2' },
+  { role: "Do'kon egasi", nav: 'CLIENT', phone: '+998901234500', password: '123456', icon: Store, tag: 'Mahsulot buyurtma qilish', color: '#7B5CE7' },
+  { role: 'Haydovchi', nav: 'DRIVER', phone: '+998901234599', password: '123456', icon: Truck, tag: 'Yetkazib berish', color: '#00C2A8' },
 ];
 
 /* ─── Main ──────────────────────────────────────────────────────────────────── */
@@ -90,37 +90,37 @@ export default function LandingPage() {
       />
 
       {/* ── Navbar ── */}
-      <nav className="relative z-30 flex items-center justify-between px-6 md:px-12 py-5 max-w-7xl mx-auto">
-        <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => navigate('/')}>
-          <Logo size={32} />
-          <span className="text-xl font-bold text-white">Dokonect</span>
+      <nav className="relative z-30 flex items-center justify-between px-4 sm:px-6 md:px-12 py-4 sm:py-5 max-w-7xl mx-auto">
+        <div className="flex items-center gap-2 sm:gap-2.5 cursor-pointer" onClick={() => navigate('/')}>
+          <Logo size={28} />
+          <span className="text-lg sm:text-xl font-bold text-white">Dokonect</span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => setShowDemo(true)}
-            className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors cursor-pointer">
-            <Play className="w-4 h-4" /> Demo
+            className="hidden sm:flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-300 hover:text-white transition-colors cursor-pointer">
+            <Play className="w-3.5 sm:w-4 h-3.5 sm:h-4" /> Demo
           </button>
           <button
             onClick={() => navigate('/login')}
-            className="px-4 py-2 text-sm font-medium text-gray-300 hover:text-white transition-colors cursor-pointer">
+            className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-300 hover:text-white transition-colors cursor-pointer">
             Kirish
           </button>
           <button
             onClick={() => navigate('/register')}
-            className="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-white rounded-lg bg-gradient-to-r from-[#4A90E2] to-[#7B5CE7] hover:shadow-lg hover:shadow-blue-500/25 transition-all cursor-pointer">
-            Boshlash <ArrowRight className="w-4 h-4" />
+            className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-1.5 sm:py-2.5 text-xs sm:text-sm font-semibold text-white rounded-lg bg-gradient-to-r from-[#4A90E2] to-[#7B5CE7] hover:shadow-lg hover:shadow-blue-500/25 transition-all cursor-pointer">
+            Boshlash <ArrowRight className="w-3 sm:w-4 h-3 sm:h-4" />
           </button>
         </div>
       </nav>
 
       {/* ── HERO ── */}
-      <section className="relative z-10 px-6 py-20 md:py-32 max-w-6xl mx-auto text-center">
+      <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-20 md:py-32 max-w-6xl mx-auto text-center">
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+          className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-4 sm:mb-6 leading-tight px-2">
           <span className="bg-gradient-to-r from-[#4A90E2] via-[#7B5CE7] to-[#00C2A8] bg-clip-text text-transparent">
             Distribyuter va do'kon egalarini
           </span>
@@ -132,7 +132,7 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-lg md:text-xl text-gray-400 mb-10 max-w-3xl mx-auto leading-relaxed">
+          className="text-base sm:text-lg md:text-xl text-gray-400 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed px-2">
           Distribyuter va do'kon egalarini bog'laydigan platforma. Oson buyurtma, samarali boshqaruv va tezkor yetkazib berish.
         </motion.p>
 
@@ -140,27 +140,27 @@ export default function LandingPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
           <button
             onClick={() => navigate('/register')}
-            className="px-8 py-4 text-base font-semibold text-white rounded-xl bg-gradient-to-r from-[#4A90E2] to-[#7B5CE7] hover:shadow-xl hover:shadow-blue-500/30 transition-all cursor-pointer">
+            className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold text-white rounded-xl bg-gradient-to-r from-[#4A90E2] to-[#7B5CE7] hover:shadow-xl hover:shadow-blue-500/30 transition-all cursor-pointer">
             Bepul boshlash
           </button>
           <button
             onClick={() => setShowDemo(true)}
-            className="flex items-center gap-2 px-8 py-4 text-base font-semibold text-gray-300 rounded-xl border border-gray-700 hover:border-gray-600 hover:text-white transition-all cursor-pointer">
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold text-gray-300 rounded-xl border border-gray-700 hover:border-gray-600 hover:text-white transition-all cursor-pointer">
             <Play className="w-4 h-4" /> Demo kirish
           </button>
         </motion.div>
       </section>
 
       {/* ── Cards section ── */}
-      <section className="relative z-10 px-6 py-20 max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+      <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-20 max-w-7xl mx-auto">
+        <div className="text-center mb-12 sm:mb-16 px-2">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-3 sm:mb-4">
             Platformaning asosiy imkoniyatlari
           </h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">Har bir foydalanuvchi uchun maxsus dashboard</p>
+          <p className="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto">Har bir foydalanuvchi uchun maxsus dashboard</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -206,12 +206,12 @@ export default function LandingPage() {
       </section>
 
       {/* ── Features Grid ── */}
-      <section className="relative z-10 px-6 py-20 max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+      <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-20 max-w-7xl mx-auto">
+        <div className="text-center mb-12 sm:mb-16 px-2">
+          <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-3 sm:mb-4">
             Nima uchun <span className="bg-gradient-to-r from-[#4A90E2] to-[#7B5CE7] bg-clip-text text-transparent">Dokonect?</span>
           </h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto">
             O'zbekiston bozori uchun maxsus ishlab chiqilgan, zamonaviy texnologiyalar va foydalanuvchi tajribasiga asoslangan B2B platforma
           </p>
         </div>
@@ -241,24 +241,24 @@ export default function LandingPage() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="relative z-10 px-6 py-20 max-w-5xl mx-auto">
-        <div className="p-12 md:p-16 rounded-3xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-white/10 text-center">
-          <div className="mb-6">
-            <Logo size={48} />
+      <section className="relative z-10 px-4 sm:px-6 py-16 sm:py-20 max-w-5xl mx-auto">
+        <div className="p-8 sm:p-12 md:p-16 rounded-3xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-white/10 text-center">
+          <div className="mb-4 sm:mb-6">
+            <Logo size={40} />
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Hoziroq bepul sinab ko'ring</h2>
-          <p className="text-gray-400 text-lg mb-8 max-w-md mx-auto">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4">Hoziroq bepul sinab ko'ring</h2>
+          <p className="text-gray-400 text-base sm:text-lg mb-6 sm:mb-8 max-w-md mx-auto px-2">
             Ro'yxatdan o'tmay demo hisoblar orqali platformaning barcha imkoniyatlarini sinab ko'ring
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-2">
             <button
               onClick={() => setShowDemo(true)}
-              className="px-8 py-4 text-base font-semibold text-white rounded-xl bg-gradient-to-r from-[#4A90E2] to-[#7B5CE7] hover:shadow-xl hover:shadow-blue-500/30 transition-all cursor-pointer">
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold text-white rounded-xl bg-gradient-to-r from-[#4A90E2] to-[#7B5CE7] hover:shadow-xl hover:shadow-blue-500/30 transition-all cursor-pointer">
               Demo kirish
             </button>
             <button
               onClick={() => navigate('/register')}
-              className="px-8 py-4 text-base font-semibold text-gray-300 rounded-xl border border-gray-700 hover:border-gray-600 hover:text-white transition-all cursor-pointer">
+              className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-4 text-sm sm:text-base font-semibold text-gray-300 rounded-xl border border-gray-700 hover:border-gray-600 hover:text-white transition-all cursor-pointer">
               Ro'yxatdan o'tish
             </button>
           </div>
@@ -312,7 +312,7 @@ export default function LandingPage() {
                 </div>
 
                 <div className="space-y-3">
-                  {TEST_ACCOUNTS.filter(acc => !acc.showOnMobile || window.innerWidth < 768).map((acc) => (
+                  {TEST_ACCOUNTS.map((acc) => (
                     <button
                       key={acc.role}
                       onClick={() => handleDemo(acc)}
