@@ -230,7 +230,7 @@ const ClientDetailPage = () => {
                           <Package className="w-5 h-5 text-slate-400" />
                         </div>
                         <div>
-                          <p className="font-medium text-slate-900">#{order.id.slice(0, 8)}</p>
+                          <p className="font-medium text-slate-900">#{order.orderNumber}</p>
                           <p className="text-xs text-slate-500">
                             {format(new Date(order.createdAt), 'dd MMM yyyy', { locale: uz })}
                           </p>
@@ -283,7 +283,7 @@ const ClientDetailPage = () => {
                     className="flex items-center justify-between p-4 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors"
                   >
                     <div>
-                      <p className="font-medium text-slate-900">#{order.id.slice(0, 8)}</p>
+                      <p className="font-medium text-slate-900">#{order.orderNumber}</p>
                       <p className="text-sm text-slate-500">
                         {format(new Date(order.createdAt), 'dd MMM yyyy HH:mm', { locale: uz })}
                       </p>
@@ -336,7 +336,7 @@ const ClientDetailPage = () => {
                     <div key={debt.id} className="p-4 border border-slate-200 rounded-xl">
                       <div className="flex items-center justify-between mb-4">
                         <div>
-                          <p className="font-medium text-slate-900">Buyurtma #{debt.order?.id?.slice(0, 8)}</p>
+                          <p className="font-medium text-slate-900">Buyurtma #{debt.order?.orderNumber ?? debt.order?.id?.slice(0, 8)}</p>
                           <p className="text-sm text-slate-500">
                             {format(new Date(debt.createdAt), 'dd MMM yyyy', { locale: uz })}
                           </p>

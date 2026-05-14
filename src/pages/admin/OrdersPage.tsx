@@ -123,7 +123,7 @@ export const OrdersPage = () => {
                   <tr><td colSpan={8} className="text-center py-12 text-slate-500">Buyurtmalar topilmadi</td></tr>
                 ) : filtered.map((order: any) => (
                   <tr key={order.id} className="hover:bg-slate-800/50 transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs text-slate-400">#{order.id?.slice(0,8)}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-slate-400">#{order.orderNumber}</td>
                     <td className="px-4 py-3">
                       <p className="font-medium text-white">{order.client?.storeName || '—'}</p>
                       <p className="text-xs text-slate-500">{order.client?.user?.phone || ''}</p>

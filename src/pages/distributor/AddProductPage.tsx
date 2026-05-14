@@ -134,6 +134,8 @@ const AddProductPage = () => {
         ...newImageUrls,
       ];
 
+      const stockQty = Number(formData.initialStock || 0);
+
       const res = await createProductFn({
         distributorId: user?.distributorId || user?.id || '',
         data: {
@@ -151,10 +153,12 @@ const AddProductPage = () => {
           discountValue:  formData.discountValue ? Number(formData.discountValue) : undefined,
           youtubeUrl:     formData.youtubeUrl,
           images:         allImages,
+          initialStock:   stockQty,
         },
       });
 
-      const stockQty  = Number(formData.initialStock || 0);
+      // Backend inventory yaratganda initialStock ishlatadi; lekin agar warehouse bo'lmasa
+      // yoki boshqa sabab bilan 0 qolsa, alohida SET call bilan kafolat beramiz
       const productId = res?.data?.id || res?.id;
       if (stockQty > 0 && productId) {
         try {
@@ -162,7 +166,9 @@ const AddProductPage = () => {
             productId,
             data: { quantity: stockQty, type: 'SET', note: 'Dastlabki zaxira' },
           });
-        } catch { /* backend muammosi — jimgina o'tkazib yuborish */ }
+        } catch (err: any) {
+          console.warn('Stock SET xatosi (mahsulot yaratildi):', err?.response?.data || err?.message);
+        }
       }
       return res;
     },
@@ -203,9 +209,11 @@ const AddProductPage = () => {
         try {
           await updateDistributorProductStockFn({
             productId: editProduct.id,
-            data: { quantity: stockQty, type: 'ADD', note: "Qo'lda yangilash" },
+            data: { quantity: stockQty, type: 'SET', note: "Qo'lda yangilash" },
           });
-        } catch { /* ignore */ }
+        } catch (err: any) {
+          console.warn('Stock SET xatosi (tahrirlash):', err?.response?.data || err?.message);
+        }
       }
       return res;
     },
@@ -306,13 +314,13 @@ const AddProductPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-1.5">
                 <label className="block text-sm font-semibold text-slate-700">
-                  {isEditing ? "Qo'shimcha miqdor (dona)" : 'Dastlabki miqdor (dona)'}
+                  {isEditing ? 'Yangi zaxira miqdori (dona)' : 'Dastlabki miqdor (dona)'}
                 </label>
                 <input type="number" min="0" placeholder="0" {...register('initialStock')}
                   className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white transition-all" />
                 <p className="text-xs text-slate-400">
                   {isEditing
-                    ? "Mavjud zaxiraga qo'shiladi. 0 qoldirsangiz o'zgarmaydi."
+                    ? "Kiritilgan raqam mavjud zaxirani almaydi (SET). 0 qoldirsangiz o'zgarmaydi."
                     : "Mahsulot yaratilgandan so'ng omborga qo'shiladi."}
                 </p>
               </div>

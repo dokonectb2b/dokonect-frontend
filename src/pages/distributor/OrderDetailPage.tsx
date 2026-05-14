@@ -112,7 +112,7 @@ const OrderDetailPage = () => {
         </button>
         <div className="flex-1">
           <h1 className="text-xl font-bold text-slate-900">
-            Buyurtma #{order.id?.slice(-8).toUpperCase()}
+            Buyurtma #{order.orderNumber}
           </h1>
           <p className="text-slate-500 text-sm mt-0.5">
             {order.createdAt

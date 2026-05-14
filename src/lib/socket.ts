@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'https://dokonect-server.onrender.com';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || 'http://16.16.213.165:5000';
 
 // polling birinchi — Render free tier uchun
 const socket = io(SOCKET_URL, {

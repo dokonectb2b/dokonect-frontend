@@ -4,9 +4,34 @@ import Topbar from './Topbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation, Outlet } from 'react-router-dom';
 import { useSocket } from '../../hooks/useSocket';
+import { useAuthStore } from '../../store/authStore';
+import api from '../../api/api';
 
 const AppLayout: React.FC = () => {
-  useSocket(); // barcha sahifalarda socket ulanishi
+  useSocket();
+
+  const { user, setUser } = useAuthStore();
+
+  // Agar localStorage'da eski session bo'lsa va distributorId/clientId/driverId yo'q bo'lsa,
+  // /api/auth/me dan yangi ma'lumot olib store'ni yangilaymiz
+  useEffect(() => {
+    if (!user) return;
+    const needsRefresh =
+      (user.role === 'DISTRIBUTOR' && !user.distributorId) ||
+      (user.role === 'CLIENT' && !user.clientId) ||
+      (user.role === 'DRIVER' && !user.driverId);
+    if (!needsRefresh) return;
+
+    api.get('/api/auth/me').then((res) => {
+      const data = res.data;
+      setUser({
+        ...user,
+        distributorId: data.distributorId ?? (data.distributor?.id as string | undefined) ?? user.distributorId,
+        clientId:      data.clientId      ?? (data.client?.id      as string | undefined) ?? user.clientId,
+        driverId:      data.driverId      ?? (data.driver?.id      as string | undefined) ?? user.driverId,
+      });
+    }).catch(() => {});
+  }, []);
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);

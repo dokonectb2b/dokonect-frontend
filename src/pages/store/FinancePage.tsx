@@ -136,7 +136,7 @@ const FinancePage = () => {
                   <tr key={order.id} className="hover:bg-slate-50 transition-colors group cursor-pointer">
                     <td className="px-3 sm:px-8 py-3 sm:py-5">
                       <div className="flex flex-col">
-                        <span className="text-xs font-black text-indigo-500 font-mono tracking-tight uppercase">ORD-{order.id.slice(0, 8)}</span>
+                        <span className="text-xs font-black text-indigo-500 font-mono tracking-tight uppercase">ORD-{order.orderNumber}</span>
                         <span className="text-sm font-bold text-slate-900 mt-1">{order.distributor?.companyName}</span>
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
                           {format(new Date(order.createdAt), 'dd MMMM', { locale: uz })}
