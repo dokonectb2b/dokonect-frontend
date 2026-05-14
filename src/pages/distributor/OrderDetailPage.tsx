@@ -156,11 +156,11 @@ const OrderDetailPage = () => {
                       {item.product?.name || 'Mahsulot'}
                     </p>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      {item.quantity} × {(item.price || 0).toLocaleString('uz-UZ')} UZS
+                      {item.quantity} × {(item.unitPrice || 0).toLocaleString('uz-UZ')} UZS
                     </p>
                   </div>
                   <p className="text-sm font-bold text-violet-600 shrink-0">
-                    {((item.quantity || 0) * (item.price || 0)).toLocaleString('uz-UZ')} UZS
+                    {(item.total || (item.quantity || 0) * (item.unitPrice || 0)).toLocaleString('uz-UZ')} UZS
                   </p>
                 </div>
               ))}
@@ -170,7 +170,7 @@ const OrderDetailPage = () => {
             <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 space-y-2">
               <div className="flex justify-between text-sm text-slate-600">
                 <span>Mahsulotlar</span>
-                <span>{(order.totalAmount || 0).toLocaleString('uz-UZ')} UZS</span>
+                <span>{(order.subtotal || 0).toLocaleString('uz-UZ')} UZS</span>
               </div>
               {order.deliveryFee !== undefined && (
                 <div className="flex justify-between text-sm text-slate-600">
@@ -187,11 +187,7 @@ const OrderDetailPage = () => {
               <div className="flex justify-between text-base font-bold text-slate-900 pt-2 border-t border-slate-200">
                 <span>Umumiy</span>
                 <span className="text-violet-600">
-                  {(
-                    (order.totalAmount || 0) +
-                    (order.deliveryFee || 0) -
-                    (order.discount || 0)
-                  ).toLocaleString('uz-UZ')} UZS
+                  {(order.totalAmount || 0).toLocaleString('uz-UZ')} UZS
                 </span>
               </div>
             </div>

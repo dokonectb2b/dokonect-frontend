@@ -44,16 +44,18 @@ export const OrdersPage = () => {
     const q = search.toLowerCase();
     return !q ||
       o.id?.toLowerCase().includes(q) ||
+      String(o.orderNumber).includes(q) ||
       o.client?.storeName?.toLowerCase().includes(q) ||
       o.distributor?.companyName?.toLowerCase().includes(q);
   });
 
+  const pagination = res?.data?.pagination || res?.pagination;
   const statCounts = {
-    total:    orders.length,
-    new:      orders.filter((o: any) => o.status === 'NEW').length,
-    active:   orders.filter((o: any) => ['ACCEPTED','ASSIGNED','IN_TRANSIT'].includes(o.status)).length,
-    done:     orders.filter((o: any) => o.status === 'DELIVERED').length,
-    cancelled:orders.filter((o: any) => ['CANCELLED','REJECTED'].includes(o.status)).length,
+    total:     pagination?.total ?? orders.length,
+    new:       orders.filter((o: any) => o.status === 'NEW').length,
+    active:    orders.filter((o: any) => ['ACCEPTED','ASSIGNED','IN_TRANSIT'].includes(o.status)).length,
+    done:      orders.filter((o: any) => o.status === 'DELIVERED').length,
+    cancelled: orders.filter((o: any) => ['CANCELLED','REJECTED'].includes(o.status)).length,
   };
 
   return (

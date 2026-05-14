@@ -28,7 +28,9 @@ export const ClientDashboard: React.FC = () => {
 
   const dash         = dashRes?.data || dashRes || {};
   const activeOrder  = dash.activeOrder;
-  const recentOrders: any[] = ordersRes?.data?.orders || ordersRes?.orders || dash.recentOrders || [];
+  const recentOrders: any[] = Array.isArray(ordersRes)
+    ? ordersRes
+    : ordersRes?.data?.orders || ordersRes?.orders || dash.recentOrders || [];
 
   // ── Track active order ────────────────────────────────────────────────────
   const { data: trackingRes } = useQuery({

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchMyOrdersFn } from '../../api/order.api';
+import { getOrdersFn } from '../../api/order.api';
 import { Package, Clock, ShieldCheck, MapPin, CheckCircle2, PackageCheck, Loader2 } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
 import { format } from 'date-fns';
@@ -17,9 +17,9 @@ const statusMap: Record<string, { label: string; variant: any; icon: React.React
 const StoreOrdersPage = () => {
   const { data: fetchRes, isLoading } = useQuery({
     queryKey: ['my-orders'],
-    queryFn: fetchMyOrdersFn,
+    queryFn: () => getOrdersFn(),
   });
-  const orders = fetchRes?.data || [];
+  const orders: any[] = Array.isArray(fetchRes) ? fetchRes : fetchRes?.data?.orders || fetchRes?.orders || [];
 
   if (isLoading) {
     return (
@@ -53,7 +53,7 @@ const StoreOrdersPage = () => {
                 {/* Order header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 border-b border-slate-100">
                   <div className="flex items-center gap-3">
-                    <span className="text-xs font-mono text-slate-400">#{order.id.slice(0, 8)}</span>
+                    <span className="text-xs font-mono text-slate-400">#{order.orderNumber ?? order.id.slice(0, 8)}</span>
                     <Badge variant={status.variant} className="gap-1">
                       {status.icon}{status.label}
                     </Badge>
@@ -82,8 +82,10 @@ const StoreOrdersPage = () => {
                     <MapPin className="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
                     <div>
                       <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">Manzil</p>
-                      <p className="text-sm font-medium text-slate-700">{order.address}</p>
-                      {order.note && <p className="text-xs text-slate-400 italic mt-0.5">"{order.note}"</p>}
+                      <p className="text-sm font-medium text-slate-700">
+                        {typeof order.deliveryAddress === 'string' ? order.deliveryAddress : order.deliveryAddress?.street || order.deliveryAddress?.address || '—'}
+                      </p>
+                      {order.notes && <p className="text-xs text-slate-400 italic mt-0.5">"{order.notes}"</p>}
                     </div>
                   </div>
                 </div>
@@ -100,7 +102,7 @@ const StoreOrdersPage = () => {
                           {item.product?.name || 'Mahsulot'}
                         </span>
                         <span className="text-[10px] text-slate-400 shrink-0">
-                          {item.quantity} × {item.price.toLocaleString('uz-UZ')}
+                          {item.quantity} × {(item.unitPrice || 0).toLocaleString('uz-UZ')}
                         </span>
                       </div>
                     ))}

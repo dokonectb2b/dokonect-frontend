@@ -71,12 +71,18 @@ export const useAuthStore = create<AuthState>()(
       },
 
       clearAuth: () => {
-        localStorage.clear();
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        localStorage.removeItem('auth-storage');
         set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false, isLoading: false });
       },
 
       logout: () => {
-        localStorage.clear();
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        localStorage.removeItem('auth-storage');
         set({ user: null, accessToken: null, refreshToken: null, isAuthenticated: false, isLoading: false });
       },
 

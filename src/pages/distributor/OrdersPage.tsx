@@ -108,7 +108,11 @@ const DistributorOrdersPage = () => {
   const orders = allOrders.filter((o: any) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
-    return o.client?.storeName?.toLowerCase().includes(q) || o.id?.toLowerCase().includes(q);
+    return (
+      o.client?.storeName?.toLowerCase().includes(q) ||
+      o.id?.toLowerCase().includes(q) ||
+      String(o.orderNumber).includes(q)
+    );
   });
 
   // Checkbox handlers

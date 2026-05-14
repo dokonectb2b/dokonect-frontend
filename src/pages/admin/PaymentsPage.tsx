@@ -24,7 +24,19 @@ const AdminPaymentsPage = () => {
   });
 
   const orders: any[] = res?.data?.orders || res?.orders || res?.data || [];
-  const paidOrders    = orders.filter((o: any) => ['DELIVERED', 'PAID'].includes(o.status));
+
+  const periodStart = (): Date => {
+    const now = new Date();
+    if (period === 'today') { const d = new Date(now); d.setHours(0, 0, 0, 0); return d; }
+    if (period === 'week')  { const d = new Date(now); d.setDate(d.getDate() - 7); return d; }
+    if (period === 'month') { const d = new Date(now); d.setMonth(d.getMonth() - 1); return d; }
+    return new Date(0);
+  };
+
+  const paidOrders = orders.filter((o: any) =>
+    ['DELIVERED', 'PAID'].includes(o.status) &&
+    new Date(o.updatedAt ?? o.createdAt) >= periodStart(),
+  );
 
   const filtered = paidOrders.filter((o: any) => {
     const q = search.toLowerCase();

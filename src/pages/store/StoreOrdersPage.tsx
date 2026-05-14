@@ -44,6 +44,18 @@ const StoreOrdersPage = () => {
     }
   };
 
+  const STATUS_ICON_CLASSES: Record<string, string> = {
+    NEW:        'bg-yellow-50 text-yellow-600',
+    ACCEPTED:   'bg-blue-50 text-blue-600',
+    ASSIGNED:   'bg-purple-50 text-purple-600',
+    PICKED:     'bg-purple-50 text-purple-600',
+    IN_TRANSIT: 'bg-sky-50 text-sky-600',
+    DELIVERED:  'bg-green-50 text-green-600',
+    CANCELLED:  'bg-red-50 text-red-600',
+    REJECTED:   'bg-red-50 text-red-600',
+    RETURNED:   'bg-orange-50 text-orange-600',
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -78,11 +90,11 @@ const StoreOrdersPage = () => {
             >
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-xl bg-${getStatusColor(order.status)}-50 text-${getStatusColor(order.status)}-600 group-hover:scale-110 transition-transform`}>
+                  <div className={`p-3 rounded-xl group-hover:scale-110 transition-transform ${STATUS_ICON_CLASSES[order.status] || 'bg-slate-50 text-slate-600'}`}>
                     <StatusIcon className="w-6 h-6" />
                   </div>
                   <div>
-                    <p className="font-mono text-xs text-indigo-500 font-medium">#{order.id.slice(0, 8)}</p>
+                    <p className="font-mono text-xs text-indigo-500 font-medium">#{order.orderNumber ?? order.id.slice(0, 8)}</p>
                     <h3 className="text-lg font-bold text-slate-900 group-hover:text-indigo-600 transition-colors uppercase tracking-tight">{order.distributor?.companyName}</h3>
                     <p className="text-xs text-slate-400 mt-0.5">{format(new Date(order.createdAt), "dd MMMM, yyyy HH:mm", { locale: uz })}</p>
                   </div>

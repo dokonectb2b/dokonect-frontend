@@ -65,7 +65,7 @@ const StoreOrderDetailPage = () => {
           <ArrowLeft className="w-5 h-5 text-slate-600" />
         </button>
         <div>
-          <p className="text-xs font-mono text-indigo-500 font-medium uppercase">#{order.id?.slice(0, 8)}</p>
+          <p className="text-xs font-mono text-indigo-500 font-medium uppercase">#{order.orderNumber ?? order.id?.slice(0, 8)}</p>
           <h1 className="text-xl font-bold text-slate-900">Buyurtma tafsiloti</h1>
         </div>
         <div className="ml-auto">
