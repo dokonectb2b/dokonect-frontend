@@ -33,21 +33,13 @@ export const OrdersPage = () => {
   const [page,    setPage]    = useState(1);
 
   const { data: res, isLoading } = useQuery({
-    queryKey: ['admin-orders', status, page],
-    queryFn: () => getAdminOrdersFn({ status: status || undefined, page, limit: 20 }),
+    queryKey: ['admin-orders', status, search, page],
+    queryFn: () => getAdminOrdersFn({ status: status || undefined, search: search || undefined, page, limit: 50 }),
     retry: false,
   });
 
   const orders: any[] = res?.data?.orders || res?.orders || res?.data || [];
-
-  const filtered = orders.filter((o: any) => {
-    const q = search.toLowerCase();
-    return !q ||
-      o.id?.toLowerCase().includes(q) ||
-      String(o.orderNumber).includes(q) ||
-      o.client?.storeName?.toLowerCase().includes(q) ||
-      o.distributor?.companyName?.toLowerCase().includes(q);
-  });
+  const filtered = orders;
 
   const pagination = res?.data?.pagination || res?.pagination;
   const statCounts = {

@@ -5,7 +5,7 @@ export const getAdminDashboardFn = async () => {
   return res.data;
 };
 
-export const getAdminOrdersFn = async (params?: { status?: string; page?: number; limit?: number }) => {
+export const getAdminOrdersFn = async (params?: { status?: string; search?: string; page?: number; limit?: number }) => {
   const res = await api.get('/api/admin/orders', { params });
   return res.data;
 };

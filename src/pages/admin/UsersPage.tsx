@@ -33,8 +33,8 @@ export const UsersPage = () => {
   const [deleteId,     setDeleteId]     = useState<string | null>(null);
 
   const { data: res, isLoading } = useQuery({
-    queryKey: ['admin-users', roleFilter],
-    queryFn: () => getAdminUsersFn({ role: roleFilter as any || undefined }),
+    queryKey: ['admin-users', roleFilter, search],
+    queryFn: () => getAdminUsersFn({ role: roleFilter as any || undefined, search: search || undefined }),
     retry: false,
   });
 
@@ -80,11 +80,7 @@ export const UsersPage = () => {
   });
 
   const users: any[] = res?.data?.users || res?.users || res?.data || [];
-
-  const filtered = users.filter((u: any) => {
-    const q = search.toLowerCase();
-    return !q || u.name?.toLowerCase().includes(q) || u.phone?.includes(q) || u.email?.toLowerCase().includes(q);
-  });
+  const filtered = users;
 
   const counts = {
     total:       users.length,
