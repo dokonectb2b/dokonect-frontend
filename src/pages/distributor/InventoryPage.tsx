@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { SafeImage } from '../../components/ui/SafeImage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Package, Warehouse, History, Search, Download, RefreshCw, AlertTriangle, Edit3, X, Pencil, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -295,7 +296,7 @@ const InventoryPage = () => {
                     <td className="px-3 sm:px-6 py-3">
                       <div className="flex items-center gap-2 sm:gap-3">
                         <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 overflow-hidden shrink-0">
-                          {photoUrl ? <img src={photoUrl} alt={inv.product?.name} className="w-full h-full object-cover" /> : <Package className="w-4 h-4 sm:w-5 sm:h-5" />}
+                          <SafeImage src={photoUrl} alt={inv.product?.name} fallback="product" fallbackClassName="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" className="w-full h-full object-cover" />
                         </div>
                         <div className="min-w-0">
                           <p className="font-bold text-slate-900 text-xs sm:text-sm truncate max-w-32 sm:max-w-none">{inv.product?.name}</p>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { SafeImage } from '../../components/ui/SafeImage';
 import { Plus, Search, Filter, RefreshCw, TrendingUp, Package } from 'lucide-react';
 import { ProductCard } from '../../components/ui/ProductCard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -104,7 +105,7 @@ export const ProductsPage: React.FC = () => {
                 >
                   <div className="w-12 h-12 rounded-lg bg-slate-200 flex items-center justify-center shrink-0">
                     {item.images?.[0]?.url ? (
-                      <img src={item.images[0].url} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+                      <SafeImage src={item.images[0].url} alt={item.name} fallback="product" className="w-full h-full object-cover rounded-lg" />
                     ) : (
                       <Package className="w-6 h-6 text-slate-400" />
                     )}
@@ -149,7 +150,7 @@ export const ProductsPage: React.FC = () => {
                 >
                   <div className="w-12 h-12 rounded-lg bg-slate-200 flex items-center justify-center shrink-0">
                     {item.images?.[0]?.url ? (
-                      <img src={item.images[0].url} alt={item.name} className="w-full h-full object-cover rounded-lg" />
+                      <SafeImage src={item.images[0].url} alt={item.name} fallback="product" className="w-full h-full object-cover rounded-lg" />
                     ) : (
                       <Package className="w-6 h-6 text-slate-400" />
                     )}

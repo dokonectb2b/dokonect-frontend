@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import { SafeImage } from '../../components/ui/SafeImage';
 import { useQuery } from '@tanstack/react-query';
 import { getOrderByIdFn } from '../../api/order.api';
 import { ArrowLeft, Package, MapPin, Truck, Clock, CheckCircle, XCircle, DollarSign } from 'lucide-react';
@@ -119,7 +120,7 @@ const StoreOrderDetailPage = () => {
               <div key={item.id} className="flex items-center gap-4 px-5 py-4">
                 <div className="w-12 h-12 rounded-xl bg-slate-100 overflow-hidden shrink-0">
                   {img
-                    ? <img src={img} alt={item.product?.name} className="w-full h-full object-cover" />
+                    ? <SafeImage src={img} alt={item.product?.name} fallback="product" className="w-full h-full object-cover" />
                     : <div className="w-full h-full flex items-center justify-center"><Package className="w-5 h-5 text-slate-300" /></div>
                   }
                 </div>

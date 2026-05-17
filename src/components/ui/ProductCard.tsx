@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Package, AlertTriangle, Edit3, Trash2 } from 'lucide-react';
+import { SafeImage } from './SafeImage';
 import { useNavigate } from 'react-router-dom';
 
 interface ProductCardProps {
@@ -57,17 +58,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, onDe
     >
       {/* Image */}
       <div className="relative h-48 bg-slate-100 flex-shrink-0">
-        {photoUrl ? (
-          <img
-            src={photoUrl}
-            alt={product.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Package className="w-16 h-16 text-slate-300" />
-          </div>
-        )}
+        <SafeImage
+          src={photoUrl}
+          alt={product.name}
+          fallback="product"
+          fallbackClassName="w-16 h-16 text-slate-300"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
 
         {/* Low stock badge */}
         {isLowStock && (

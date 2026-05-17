@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useCartStore } from '../../store/cart.store';
+import { SafeImage } from '../../components/ui/SafeImage';
 import { useMutation } from '@tanstack/react-query';
 import { createOrderFn } from '../../api/order.api';
 import { Button } from '../../components/ui/Button';
@@ -77,7 +78,7 @@ const CartPage = () => {
             <div key={item.productId} className="flex gap-4 items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
               <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 shrink-0">
                 {item.imageUrl ? (
-                  <img src={item.imageUrl} alt={item.name} className="w-full h-full object-cover" />
+                  <SafeImage src={item.imageUrl} alt={item.name} fallback="product" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <Package className="w-6 h-6 text-slate-300" />

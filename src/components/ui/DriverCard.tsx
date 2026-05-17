@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Star, Truck, MapPin } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
+import { SafeImage } from './SafeImage';
 
 interface DriverCardProps {
   driver: {
@@ -35,17 +36,13 @@ export const DriverCard: React.FC<DriverCardProps> = ({
     >
       <div className="flex items-start gap-4">
         <div className="relative">
-          {driver.user.avatar ? (
-            <img
-              src={driver.user.avatar}
-              alt={driver.user.name}
-              className="w-16 h-16 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center text-white text-xl font-bold">
-              {driver.user.name.charAt(0)}
-            </div>
-          )}
+          <SafeImage
+            src={driver.user.avatar}
+            alt={driver.user.name}
+            fallback="avatar"
+            fallbackClassName="w-8 h-8 text-slate-400"
+            className="w-16 h-16 rounded-full object-cover"
+          />
           <div className="absolute -bottom-1 -right-1">
             <StatusBadge
               status={driver.isOnline ? 'ONLINE' : 'OFFLINE'}

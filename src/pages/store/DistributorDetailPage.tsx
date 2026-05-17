@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import { SafeImage } from '../../components/ui/SafeImage';
 import { useQuery } from '@tanstack/react-query';
 import { getClientDistributorByIdFn } from '../../api/client.api';
 import {
@@ -60,7 +61,7 @@ const DistributorDetailPage = () => {
           {/* Logo */}
           <div className="w-20 h-20 shrink-0 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 overflow-hidden">
             {dist.logo ? (
-              <img src={dist.logo} alt={dist.companyName} className="w-full h-full object-cover" />
+              <SafeImage src={dist.logo} alt={dist.companyName} fallback="company" className="w-full h-full object-cover" />
             ) : (
               <span className="text-3xl font-black text-indigo-500">{dist.companyName?.charAt(0) || 'D'}</span>
             )}
@@ -178,7 +179,7 @@ const DistributorDetailPage = () => {
                 >
                   <div className="aspect-square rounded-2xl overflow-hidden bg-slate-100 mb-2">
                     {cover ? (
-                      <img src={cover} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                      <SafeImage src={cover} alt={product.name} fallback="product" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <Package className="w-8 h-8 text-slate-300" />

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { SafeImage } from '../../components/ui/SafeImage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getOrderByIdFn, updateOrderStatusFn } from '../../api/order.api';
 import {
@@ -139,17 +140,13 @@ const OrderDetailPage = () => {
               {(order.items || []).map((item: any) => (
                 <div key={item.id} className="flex items-center gap-4 px-6 py-4">
                   <div className="w-12 h-12 rounded-xl bg-slate-100 overflow-hidden shrink-0">
-                    {item.product?.images?.[0]?.url || item.product?.images?.[0] ? (
-                      <img
-                        src={item.product.images[0]?.url || item.product.images[0]}
-                        alt={item.product?.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-400">
-                        <Package className="w-5 h-5" />
-                      </div>
-                    )}
+                    <SafeImage
+                      src={item.product?.images?.[0]?.url || item.product?.images?.[0]}
+                      alt={item.product?.name}
+                      fallback="product"
+                      fallbackClassName="w-5 h-5 text-slate-400"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-slate-800 truncate">

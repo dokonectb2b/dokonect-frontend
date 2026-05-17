@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { SafeImage } from '../../components/ui/SafeImage';
 import { Search, MapPin, Star, CheckCircle2, Phone, Package, ShoppingBag, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -90,7 +91,7 @@ const DistributorsPage = () => {
                 <div className="flex items-start justify-between mb-4">
                   <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 overflow-hidden group-hover:scale-105 transition-transform">
                     {dist.logo ? (
-                      <img src={dist.logo} alt={dist.companyName} className="w-full h-full object-cover" />
+                      <SafeImage src={dist.logo} alt={dist.companyName} fallback="company" className="w-full h-full object-cover" />
                     ) : (
                       <span className="text-2xl font-black text-indigo-500">
                         {dist.companyName?.charAt(0) || 'D'}
