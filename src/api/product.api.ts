@@ -26,6 +26,7 @@ export interface ProductPayload {
   youtubeUrl?: string;
   images?: string[];
   variants?: ProductVariant[];
+  initialStock?: number;
 }
 
 export interface ProductsParams {

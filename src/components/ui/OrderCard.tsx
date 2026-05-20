@@ -41,7 +41,7 @@ export const OrderCard: React.FC<OrderCardProps> = ({
             <Package className="w-5 h-5 text-sky-600" />
           </div>
           <div>
-            <p className="font-mono text-sm text-gray-600">#{order.id.slice(0, 8)}</p>
+            <p className="font-mono text-sm text-gray-600">#{order.orderNumber ?? order.id.slice(0, 8)}</p>
             <p className="text-xs text-gray-500">
               {formatDistanceToNow(new Date(order.createdAt), { addSuffix: true })}
             </p>

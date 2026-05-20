@@ -124,7 +124,7 @@ const StoreDashboard = () => {
                 {recentOrders.map((order: any) => (
                   <tr key={order.id} onClick={() => navigate(`/store/orders/${order.id}`)} className="hover:bg-slate-50/50 transition-colors cursor-pointer group">
                     <td className="px-3 sm:px-8 py-3 sm:py-5">
-                      <span className="text-[11px] font-black text-indigo-500 font-mono">ORD-{order.id.slice(0, 8)}</span>
+                      <span className="text-[11px] font-black text-indigo-500 font-mono">ORD-{order.orderNumber ?? order.id.slice(0, 8)}</span>
                       <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{format(new Date(order.createdAt), 'dd MMM', { locale: uz })}</p>
                     </td>
                     <td className="px-3 sm:px-8 py-3 sm:py-5 hidden sm:table-cell">

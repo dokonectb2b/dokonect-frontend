@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { SafeImage } from '../../components/ui/SafeImage';
 import { EyeOff, Loader2, Package, ChevronLeft, ChevronRight, AlertTriangle, Search, Tag, Percent } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../api/api';
@@ -93,7 +94,7 @@ const AdminProductsPage = () => {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           {p.images?.[0]?.url ? (
-                            <img src={p.images[0].url} alt={p.name} className="w-9 h-9 rounded-lg object-cover shrink-0" />
+                            <SafeImage src={p.images[0].url} alt={p.name} fallback="product" className="w-9 h-9 rounded-lg object-cover shrink-0" />
                           ) : (
                             <div className="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center shrink-0">
                               <Package className="w-4 h-4 text-amber-400" />

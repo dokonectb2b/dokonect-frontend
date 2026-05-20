@@ -7,7 +7,6 @@ export interface BrandPayload {
   logo?: string;
 }
 
-// GET /api/brands?distributorId=xxx
 export const getBrandsFn = async (distributorId: string) => {
   const res = await api.get('/api/brands', { params: { distributorId } });
   return res.data;

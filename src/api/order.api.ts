@@ -17,7 +17,7 @@ export interface CreateOrderPayload {
   notes?: string;
   deliveryFee?: number;
   discount?: number;
-  paymentMethod?: 'CASH' | 'CARD' | 'BANK_TRANSFER';
+  paymentMethod?: 'CASH' | 'CARD' | 'BANK_TRANSFER' | 'CREDIT';
   dueDate?: string;
 }
 
@@ -47,9 +47,15 @@ export const getOrdersFn = async (params?: OrdersParams) => {
   return response.data;
 };
 
-// GET /api/orders/:id — bitta buyurtma
+// GET /api/orders/:id — bitta buyurtma (UUID bo'yicha)
 export const getOrderByIdFn = async (id: string) => {
   const response = await api.get(`/api/orders/${id}`);
+  return response.data;
+};
+
+// GET /api/orders/number/:orderNumber — orderNumber bo'yicha
+export const getOrderByNumberFn = async (orderNumber: number) => {
+  const response = await api.get(`/api/orders/number/${orderNumber}`);
   return response.data;
 };
 

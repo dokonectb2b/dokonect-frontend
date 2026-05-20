@@ -28,7 +28,9 @@ export const ClientDashboard: React.FC = () => {
 
   const dash         = dashRes?.data || dashRes || {};
   const activeOrder  = dash.activeOrder;
-  const recentOrders: any[] = ordersRes?.data?.orders || ordersRes?.orders || dash.recentOrders || [];
+  const recentOrders: any[] = Array.isArray(ordersRes)
+    ? ordersRes
+    : ordersRes?.data?.orders || ordersRes?.orders || dash.recentOrders || [];
 
   // ── Track active order ────────────────────────────────────────────────────
   const { data: trackingRes } = useQuery({
@@ -88,7 +90,7 @@ export const ClientDashboard: React.FC = () => {
                     <Package className="w-5 h-5 text-gray-400 mt-0.5" />
                     <div>
                       <p className="text-sm text-gray-600">Buyurtma ID</p>
-                      <p className="font-mono font-medium">#{activeOrder.id.slice(0, 8)}</p>
+                      <p className="font-mono font-medium">#{activeOrder.orderNumber ?? activeOrder.id.slice(0, 8)}</p>
                     </div>
                   </div>
 
@@ -177,7 +179,7 @@ export const ClientDashboard: React.FC = () => {
                     <Package className="w-5 h-5 text-sky-600" />
                   </div>
                   <div>
-                    <p className="font-mono text-sm text-gray-600">#{order.id.slice(0, 8)}</p>
+                    <p className="font-mono text-sm text-gray-600">#{order.orderNumber}</p>
                     <p className="text-sm text-gray-500">
                       {order.items?.length || 0} mahsulot · {(order.totalAmount || 0).toLocaleString('uz-UZ')} UZS
                     </p>

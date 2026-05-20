@@ -24,7 +24,19 @@ const AdminPaymentsPage = () => {
   });
 
   const orders: any[] = res?.data?.orders || res?.orders || res?.data || [];
-  const paidOrders    = orders.filter((o: any) => ['DELIVERED', 'PAID'].includes(o.status));
+
+  const periodStart = (): Date => {
+    const now = new Date();
+    if (period === 'today') { const d = new Date(now); d.setHours(0, 0, 0, 0); return d; }
+    if (period === 'week')  { const d = new Date(now); d.setDate(d.getDate() - 7); return d; }
+    if (period === 'month') { const d = new Date(now); d.setMonth(d.getMonth() - 1); return d; }
+    return new Date(0);
+  };
+
+  const paidOrders = orders.filter((o: any) =>
+    ['DELIVERED', 'PAID'].includes(o.status) &&
+    new Date(o.updatedAt ?? o.createdAt) >= periodStart(),
+  );
 
   const filtered = paidOrders.filter((o: any) => {
     const q = search.toLowerCase();
@@ -112,7 +124,7 @@ const AdminPaymentsPage = () => {
                   <tr><td colSpan={6} className="text-center py-12 text-slate-500">To'lovlar topilmadi</td></tr>
                 ) : filtered.map((order: any) => (
                   <tr key={order.id} className="hover:bg-slate-800/50 transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs text-slate-400">#{order.id?.slice(0,8)}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-slate-400">#{order.orderNumber}</td>
                     <td className="px-4 py-3 font-medium text-white">{order.client?.storeName || '—'}</td>
                     <td className="px-4 py-3 text-slate-300">{order.distributor?.companyName || '—'}</td>
                     <td className="px-4 py-3 font-bold text-emerald-400">{(order.totalAmount||0).toLocaleString('uz-UZ')} UZS</td>

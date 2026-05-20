@@ -33,27 +33,21 @@ export const OrdersPage = () => {
   const [page,    setPage]    = useState(1);
 
   const { data: res, isLoading } = useQuery({
-    queryKey: ['admin-orders', status, page],
-    queryFn: () => getAdminOrdersFn({ status: status || undefined, page, limit: 20 }),
+    queryKey: ['admin-orders', status, search, page],
+    queryFn: () => getAdminOrdersFn({ status: status || undefined, search: search || undefined, page, limit: 50 }),
     retry: false,
   });
 
   const orders: any[] = res?.data?.orders || res?.orders || res?.data || [];
+  const filtered = orders;
 
-  const filtered = orders.filter((o: any) => {
-    const q = search.toLowerCase();
-    return !q ||
-      o.id?.toLowerCase().includes(q) ||
-      o.client?.storeName?.toLowerCase().includes(q) ||
-      o.distributor?.companyName?.toLowerCase().includes(q);
-  });
-
+  const pagination = res?.data?.pagination || res?.pagination;
   const statCounts = {
-    total:    orders.length,
-    new:      orders.filter((o: any) => o.status === 'NEW').length,
-    active:   orders.filter((o: any) => ['ACCEPTED','ASSIGNED','IN_TRANSIT'].includes(o.status)).length,
-    done:     orders.filter((o: any) => o.status === 'DELIVERED').length,
-    cancelled:orders.filter((o: any) => ['CANCELLED','REJECTED'].includes(o.status)).length,
+    total:     pagination?.total ?? orders.length,
+    new:       orders.filter((o: any) => o.status === 'NEW').length,
+    active:    orders.filter((o: any) => ['ACCEPTED','ASSIGNED','IN_TRANSIT'].includes(o.status)).length,
+    done:      orders.filter((o: any) => o.status === 'DELIVERED').length,
+    cancelled: orders.filter((o: any) => ['CANCELLED','REJECTED'].includes(o.status)).length,
   };
 
   return (
@@ -123,7 +117,7 @@ export const OrdersPage = () => {
                   <tr><td colSpan={8} className="text-center py-12 text-slate-500">Buyurtmalar topilmadi</td></tr>
                 ) : filtered.map((order: any) => (
                   <tr key={order.id} className="hover:bg-slate-800/50 transition-colors">
-                    <td className="px-4 py-3 font-mono text-xs text-slate-400">#{order.id?.slice(0,8)}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-slate-400">#{order.orderNumber}</td>
                     <td className="px-4 py-3">
                       <p className="font-medium text-white">{order.client?.storeName || '—'}</p>
                       <p className="text-xs text-slate-500">{order.client?.user?.phone || ''}</p>
