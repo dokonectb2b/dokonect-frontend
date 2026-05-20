@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { SafeImage } from '../../components/ui/SafeImage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Package, Warehouse, History, Search, Download, RefreshCw, AlertTriangle, Edit3, X, Pencil, Trash2 } from 'lucide-react';
+import { Warehouse, History, Search, Download, RefreshCw, AlertTriangle, Edit3, X, Pencil, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
