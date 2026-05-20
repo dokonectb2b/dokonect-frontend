@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? '',
+  timeout: 60_000,   // ← 60 sekund (Render.com uyg'onishi uchun)
   headers: {
     'Content-Type': 'application/json',
   },
@@ -12,19 +13,16 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  console.log('📡 Request:', config.method?.toUpperCase(), (config.baseURL ?? '') + (config.url ?? ''));
+  // console.log olib tashlandi — production da keraksiz
   return config;
 });
 
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
-    console.log('❌ Response error:', error.response?.status, error.config?.url);
-
     const originalRequest = error.config;
     const url = originalRequest?.url ?? '';
 
-    // ← Login va Register da interceptor ishlamasin — xato to'g'ri catch ga ketsin
     const isAuthEndpoint =
       url.includes('/auth/login') ||
       url.includes('/auth/register');
@@ -33,7 +31,7 @@ api.interceptors.response.use(
       error.response?.status === 401 &&
       !originalRequest._retry &&
       !url.includes('/auth/refresh-token') &&
-      !isAuthEndpoint   // ← asosiy tuzatish
+      !isAuthEndpoint
     ) {
       originalRequest._retry = true;
       try {
@@ -44,7 +42,11 @@ api.interceptors.response.use(
           return Promise.reject(error);
         }
 
-        const response = await axios.post(`${import.meta.env.VITE_API_URL ?? ''}/api/auth/refresh-token`, { refreshToken });
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL ?? ''}/api/auth/refresh-token`,
+          { refreshToken },
+          { timeout: 30_000 },
+        );
 
         if (response.data?.token || response.data?.accessToken) {
           const newToken = response.data.token ?? response.data.accessToken;
