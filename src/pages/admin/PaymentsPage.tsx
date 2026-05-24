@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { CreditCard, Search, TrendingUp, DollarSign } from 'lucide-react';
+import { CreditCard, Search, TrendingUp, DollarSign, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getAdminOrdersFn } from '../../api/admin.api';
 import { format } from 'date-fns';
 import { uz } from 'date-fns/locale';
@@ -13,13 +13,14 @@ const PERIODS = [
 ];
 
 const AdminPaymentsPage = () => {
-  const [search,       setSearch]       = useState('');
-  const [period,       setPeriod]       = useState('month');
+  const [search,        setSearch]        = useState('');
+  const [period,        setPeriod]        = useState('month');
   const [paymentFilter, setPaymentFilter] = useState('');
+  const [page,          setPage]          = useState(1);
 
   const { data: res, isLoading } = useQuery({
     queryKey: ['admin-payments', period],
-    queryFn: () => getAdminOrdersFn({ status: 'DELIVERED', limit: 100 }),
+    queryFn: () => getAdminOrdersFn({ status: 'DELIVERED', limit: 1000 }),
     retry: false,
   });
 
@@ -44,6 +45,9 @@ const AdminPaymentsPage = () => {
     const matchPay    = !paymentFilter || o.paymentMethod === paymentFilter;
     return matchSearch && matchPay;
   });
+  const PAGE_SIZE = 20;
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const totalRevenue = paidOrders.reduce((s: number, o: any) => s + (o.totalAmount || 0), 0);
   const cashRevenue  = paidOrders.filter((o: any) => o.paymentMethod === 'CASH').reduce((s: number, o: any) => s + (o.totalAmount || 0), 0);
@@ -61,7 +65,7 @@ const AdminPaymentsPage = () => {
         </div>
         <div className="flex gap-1 bg-slate-900 border border-slate-800 p-1 rounded-xl">
           {PERIODS.map((p) => (
-            <button key={p.value} onClick={() => setPeriod(p.value)}
+            <button key={p.value} onClick={() => { setPeriod(p.value); setPage(1); }}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${period === p.value ? 'bg-violet-600 text-white' : 'text-slate-400 hover:text-white'}`}>
               {p.label}
             </button>
@@ -92,11 +96,11 @@ const AdminPaymentsPage = () => {
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row gap-3">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)}
+          <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder="Do'kon nomi yoki buyurtma ID..."
             className="w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/40" />
         </div>
-        <select value={paymentFilter} onChange={(e) => setPaymentFilter(e.target.value)}
+        <select value={paymentFilter} onChange={(e) => { setPaymentFilter(e.target.value); setPage(1); }}
           className="px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white focus:outline-none">
           <option value="">Barcha to'lov turlari</option>
           <option value="CASH">Naqd</option>
@@ -120,9 +124,9 @@ const AdminPaymentsPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800">
-                {filtered.length === 0 ? (
+                {paged.length === 0 ? (
                   <tr><td colSpan={6} className="text-center py-12 text-slate-500">To'lovlar topilmadi</td></tr>
-                ) : filtered.map((order: any) => (
+                ) : paged.map((order: any) => (
                   <tr key={order.id} className="hover:bg-slate-800/50 transition-colors">
                     <td className="px-4 py-3 font-mono text-xs text-slate-400">#{order.orderNumber}</td>
                     <td className="px-4 py-3 font-medium text-white">{order.client?.storeName || '—'}</td>
@@ -147,6 +151,20 @@ const AdminPaymentsPage = () => {
           </div>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3">
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+            className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-slate-400 hover:text-white disabled:opacity-40 transition-colors">
+            <ChevronLeft className="w-4 h-4" /> Oldingi
+          </button>
+          <span className="text-sm text-slate-400">{page} / {totalPages}</span>
+          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+            className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-slate-400 hover:text-white disabled:opacity-40 transition-colors">
+            Keyingi <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

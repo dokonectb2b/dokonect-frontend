@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SafeImage } from '../../components/ui/SafeImage';
-import { Plus, Search, Filter, RefreshCw, TrendingUp, Package } from 'lucide-react';
+import { Plus, Search, Filter, RefreshCw, TrendingUp, Package, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ProductCard } from '../../components/ui/ProductCard';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getProductsFn, deleteProductFn } from '../../api/product.api';
 import { getDistributorProductsDashboardFn } from '../../api/distributor.api';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
-import SalesChart from '../../components/analytics/SalesChart';
 
 export const ProductsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [stockStatus, setStockStatus] = useState('');
   const [sortBy, setSortBy] = useState<'createdAt' | 'price' | 'stock' | 'sales'>('createdAt');
+  const [page, setPage] = useState(1);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: ['distributor-products', searchQuery, stockStatus, sortBy, user?.distributorId],
+    queryKey: ['distributor-products', searchQuery, stockStatus, sortBy, user?.distributorId, page],
     queryFn: () =>
       getProductsFn({
         search: searchQuery || undefined,
@@ -27,8 +27,8 @@ export const ProductsPage: React.FC = () => {
         sortBy,
         sortOrder: 'desc',
         distributorId: user?.distributorId,
-        page: 1,
-        limit: 50,
+        page,
+        limit: 20,
       }),
   });
 
@@ -60,7 +60,8 @@ export const ProductsPage: React.FC = () => {
     },
   });
 
-  const products = data?.products || [];
+  const products   = data?.products || [];
+  const totalPages = data?.pagination?.totalPages ?? 1;
   const topSellingProducts = dashboardData?.topSellingProducts || [];
   const mostOrderedProducts = dashboardData?.mostOrderedProducts || [];
 
@@ -181,7 +182,7 @@ export const ProductsPage: React.FC = () => {
               type="text"
               placeholder="Nomi yoki SKU bo'yicha qidirish..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
               className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm"
             />
           </div>
@@ -191,7 +192,7 @@ export const ProductsPage: React.FC = () => {
             <Filter className="w-4 h-4 text-slate-400" />
             <select
               value={stockStatus}
-              onChange={(e) => setStockStatus(e.target.value)}
+              onChange={(e) => { setStockStatus(e.target.value); setPage(1); }}
               className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
             >
               <option value="">Barcha holat</option>
@@ -204,7 +205,7 @@ export const ProductsPage: React.FC = () => {
           {/* Sort */}
           <select
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+            onChange={(e) => { setSortBy(e.target.value as any); setPage(1); }}
             className="border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-white"
           >
             <option value="createdAt">Yangi qo'shilgan</option>
@@ -248,6 +249,21 @@ export const ProductsPage: React.FC = () => {
                 onDelete={(id: string) => deleteProduct(id)}
               />
             ))}
+          </div>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3 mt-4">
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+              className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+              <ChevronLeft className="w-4 h-4" /> Oldingi
+            </button>
+            <span className="text-sm text-slate-500">{page} / {totalPages}</span>
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+              className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+              Keyingi <ChevronRight className="w-4 h-4" />
+            </button>
           </div>
         )}
 

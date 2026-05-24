@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { SafeImage } from '../../components/ui/SafeImage';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Warehouse, History, Search, Download, RefreshCw, AlertTriangle, Edit3, X, Pencil, Trash2 } from 'lucide-react';
+import { Warehouse, History, Search, Download, RefreshCw, AlertTriangle, Edit3, X, Pencil, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
@@ -18,6 +18,7 @@ const InventoryPage = () => {
   const navigate    = useNavigate();
   const [searchTerm,      setSearchTerm]      = useState('');
   const [warehouseFilter, setWarehouseFilter] = useState('');
+  const [page,            setPage]            = useState(1);
   const [showLogs,        setShowLogs]        = useState(false);
   const [editStock,       setEditStock]       = useState<{ productId: string; name: string; current: number } | null>(null);
   const [stockInput,      setStockInput]      = useState('');
@@ -26,8 +27,10 @@ const InventoryPage = () => {
 
   // ── Inventory ─────────────────────────────────────────────────────────────
   const { data: inventoryResponse, isLoading } = useQuery({
-    queryKey: ['distributor-inventory'],
-    queryFn: () => api.get('/api/distributor/inventory').then(r => r.data?.data?.inventory || r.data?.inventory || []),
+    queryKey: ['distributor-inventory', warehouseFilter, page],
+    queryFn: () => api.get('/api/distributor/inventory', {
+      params: { warehouseId: warehouseFilter || undefined, page, limit: 20 },
+    }).then(r => r.data),
     staleTime: 30_000,
   });
 
@@ -84,17 +87,18 @@ const InventoryPage = () => {
     onError: (e: any) => toast.error(e.response?.data?.message || 'Xatolik'),
   });
 
-  const inventory: any[] = inventoryResponse || [];
+  const inventory: any[] = inventoryResponse?.data?.inventory || inventoryResponse?.inventory || [];
+  const totalPages = inventoryResponse?.pagination?.totalPages ?? 1;
   const alerts: any[]    = alertsData?.alerts || alertsData?.data?.alerts || [];
   const logs: any[]      = logsData?.data?.logs || logsData?.logs || [];
   const warehouses       = [...new Set(inventory.map((inv: any) => inv.warehouse?.name).filter(Boolean))];
 
   const filteredInventory = inventory.filter((inv: any) => {
+    if (!searchTerm) return true;
     const q = searchTerm.toLowerCase();
-    const matchSearch = inv.product?.name?.toLowerCase().includes(q) || inv.product?.sku?.toLowerCase().includes(q);
-    const matchWh     = !warehouseFilter || inv.warehouse?.name === warehouseFilter;
-    return matchSearch && matchWh;
+    return inv.product?.name?.toLowerCase().includes(q) || inv.product?.sku?.toLowerCase().includes(q);
   });
+  const paged = filteredInventory;
 
   if (isLoading) {
     return <div className="flex items-center justify-center min-h-[60vh]"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-sky-500" /></div>;
@@ -264,9 +268,9 @@ const InventoryPage = () => {
         <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input type="text" placeholder="Mahsulot yoki SKU..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-slate-50 focus:bg-white transition-all" />
+            <input type="text" placeholder="Mahsulot yoki SKU..." value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }} className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 bg-slate-50 focus:bg-white transition-all" />
           </div>
-          <select value={warehouseFilter} onChange={(e) => setWarehouseFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500">
+          <select value={warehouseFilter} onChange={(e) => { setWarehouseFilter(e.target.value); setPage(1); }} className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-sky-500">
             <option value="">Barcha omborlar</option>
             {warehouses.map((w: any) => <option key={w} value={w}>{w}</option>)}
           </select>
@@ -287,7 +291,7 @@ const InventoryPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
-              {filteredInventory.map((inv: any) => {
+              {paged.map((inv: any) => {
                 const available = inv.available ?? (inv.quantity - inv.reserved);
                 const isLow     = available <= (inv.minThreshold ?? 5);
                 const photoUrl  = inv.product?.images?.[0]?.url;
@@ -363,6 +367,20 @@ const InventoryPage = () => {
           </table>
         </div>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3">
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+            <ChevronLeft className="w-4 h-4" /> Oldingi
+          </button>
+          <span className="text-sm text-slate-500">{page} / {totalPages}</span>
+          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+            Keyingi <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

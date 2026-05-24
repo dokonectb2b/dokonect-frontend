@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { SafeImage } from '../../components/ui/SafeImage';
-import { Search, MapPin, Star, CheckCircle2, Phone, Package, ShoppingBag, Info } from 'lucide-react';
+import { Search, MapPin, Star, CheckCircle2, Phone, Package, ShoppingBag, Info, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { getClientDistributorsFn } from '../../api/client.api';
@@ -10,15 +10,18 @@ const DistributorsPage = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [region, setRegion] = useState('');
+  const [page,   setPage]   = useState(1);
 
   const { data: distRes, isLoading } = useQuery({
-    queryKey: ['client-distributors', search, region],
-    queryFn: () => getClientDistributorsFn({ search: search || undefined, region: region || undefined }),
+    queryKey: ['client-distributors', search, region, page],
+    queryFn: () => getClientDistributorsFn({ search: search || undefined, region: region || undefined, page, limit: 20 }),
     staleTime: 30_000,
     retry: false,
   });
 
-  const distributors: any[] = distRes?.data?.distributors || distRes?.distributors || distRes?.data || distRes || [];
+  const distributors: any[] = distRes?.data || distRes?.distributors || [];
+  const totalPages = distRes?.pagination?.totalPages ?? 1;
+  const paged      = distributors;
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
@@ -43,7 +46,7 @@ const DistributorsPage = () => {
             placeholder="Nomi bo'yicha qidirish..."
             className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500/20 font-medium outline-none"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
         </div>
         <div className="w-full md:w-64 relative">
@@ -78,7 +81,7 @@ const DistributorsPage = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {distributors.map((dist: any, i: number) => (
+          {paged.map((dist: any, i: number) => (
             <motion.div
               key={dist.id}
               initial={{ opacity: 0, y: 20 }}
@@ -164,6 +167,20 @@ const DistributorsPage = () => {
               </div>
             </motion.div>
           ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3">
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+            <ChevronLeft className="w-4 h-4" /> Oldingi
+          </button>
+          <span className="text-sm text-slate-500">{page} / {totalPages}</span>
+          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+            Keyingi <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
       )}
     </div>

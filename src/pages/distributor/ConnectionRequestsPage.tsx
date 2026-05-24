@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getConnectionRequestsFn, respondToConnectionFn } from '../../api/distributor.api';
-import { CheckCircle, XCircle, Clock, Store, Phone, User } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Store, Phone, User, ChevronLeft, ChevronRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const STATUS_LABEL: Record<string, { label: string; color: string }> = {
@@ -27,9 +28,15 @@ const ConnectionRequestsPage = () => {
     onError: () => toast.error("Xatolik yuz berdi"),
   });
 
+  const [othersPage, setOthersPage] = useState(1);
+
   const links: any[] = data?.data || data || [];
   const pending  = links.filter((l) => l.status === 'PENDING');
   const others   = links.filter((l) => l.status !== 'PENDING');
+
+  const PAGE_SIZE        = 20;
+  const othersTotalPages = Math.ceil(others.length / PAGE_SIZE);
+  const pagedOthers      = others.slice((othersPage - 1) * PAGE_SIZE, othersPage * PAGE_SIZE);
 
   return (
     <div className="page fade-in max-w-4xl mx-auto pb-12">
@@ -70,9 +77,22 @@ const ConnectionRequestsPage = () => {
             <section>
               <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Tarix</p>
               <div className="space-y-3">
-                {others.map((link) => (
+                {pagedOthers.map((link) => (
                   <RequestCard key={link.id} link={link} />
                 ))}
+                {othersTotalPages > 1 && (
+                  <div className="flex items-center justify-center gap-3 pt-2">
+                    <button onClick={() => setOthersPage(p => Math.max(1, p - 1))} disabled={othersPage === 1}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+                      <ChevronLeft className="w-4 h-4" /> Oldingi
+                    </button>
+                    <span className="text-sm text-slate-500">{othersPage} / {othersTotalPages}</span>
+                    <button onClick={() => setOthersPage(p => Math.min(othersTotalPages, p + 1))} disabled={othersPage === othersTotalPages}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+                      Keyingi <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </div>
             </section>
           )}

@@ -5,6 +5,8 @@ import api from './api';
 export interface ClientDistributorsParams {
   region?: string;
   search?: string;
+  page?: number;
+  limit?: number;
 }
 
 export interface RateOrderPayload {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Search, Filter, Download, ShoppingCart, Package, Truck, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Search, Filter, Download, ShoppingCart, Package, Truck, CheckCircle2, XCircle, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format } from 'date-fns';
 import { uz } from 'date-fns/locale';
 import { getAdminOrdersFn } from '../../api/admin.api';
@@ -34,7 +34,7 @@ export const OrdersPage = () => {
 
   const { data: res, isLoading } = useQuery({
     queryKey: ['admin-orders', status, search, page],
-    queryFn: () => getAdminOrdersFn({ status: status || undefined, search: search || undefined, page, limit: 50 }),
+    queryFn: () => getAdminOrdersFn({ status: status || undefined, search: search || undefined, page, limit: 20 }),
     retry: false,
   });
 
@@ -42,12 +42,14 @@ export const OrdersPage = () => {
   const filtered = orders;
 
   const pagination = res?.data?.pagination || res?.pagination;
+  const totalPages = pagination?.totalPages ?? 1;
+  const serverCounts = res?.data?.counts;
   const statCounts = {
     total:     pagination?.total ?? orders.length,
-    new:       orders.filter((o: any) => o.status === 'NEW').length,
-    active:    orders.filter((o: any) => ['ACCEPTED','ASSIGNED','IN_TRANSIT'].includes(o.status)).length,
-    done:      orders.filter((o: any) => o.status === 'DELIVERED').length,
-    cancelled: orders.filter((o: any) => ['CANCELLED','REJECTED'].includes(o.status)).length,
+    new:       serverCounts?.new       ?? orders.filter((o: any) => o.status === 'NEW').length,
+    active:    serverCounts?.active    ?? orders.filter((o: any) => ['ACCEPTED','ASSIGNED','IN_TRANSIT'].includes(o.status)).length,
+    done:      serverCounts?.done      ?? orders.filter((o: any) => o.status === 'DELIVERED').length,
+    cancelled: serverCounts?.cancelled ?? orders.filter((o: any) => ['CANCELLED','REJECTED'].includes(o.status)).length,
   };
 
   return (
@@ -86,7 +88,7 @@ export const OrdersPage = () => {
       <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row gap-3">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)}
+          <input value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder="Buyurtma ID, do'kon yoki distribyutor..."
             className="w-full pl-10 pr-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-violet-500/40" />
         </div>
@@ -145,6 +147,20 @@ export const OrdersPage = () => {
           </div>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3">
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+            className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-slate-400 hover:text-white disabled:opacity-40 transition-colors">
+            <ChevronLeft className="w-4 h-4" /> Oldingi
+          </button>
+          <span className="text-sm text-slate-400">{page} / {totalPages}</span>
+          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+            className="flex items-center gap-1.5 px-3 py-2 bg-slate-900 border border-slate-800 rounded-lg text-sm text-slate-400 hover:text-white disabled:opacity-40 transition-colors">
+            Keyingi <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

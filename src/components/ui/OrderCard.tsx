@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Package, MapPin, Clock, User } from 'lucide-react';
+import { Package, MapPin, User } from 'lucide-react';
 import { StatusBadge } from './StatusBadge';
 import { formatDistanceToNow } from 'date-fns';
 
 interface OrderCardProps {
   order: {
     id: string;
+    orderNumber?: number;
     status: string;
     totalAmount: number;
     deliveryAddress: any;

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Tag, Plus, Trash2, Edit2, Ticket, Users } from 'lucide-react';
+import { Tag, Plus, Trash2, Edit2, Ticket, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
 import toast from 'react-hot-toast';
 import { getPromoCodesFn, deletePromoCodeFn } from '../../api/promo-codes.api';
@@ -10,16 +10,23 @@ import { useAuthStore } from '../../store/authStore';
 const PricingPage = () => {
   const queryClient = useQueryClient();
   const { user } = useAuthStore();
-  const [activeTab, setActiveTab] = useState<'promo' | 'bulk'>('promo');
+  const [activeTab,  setActiveTab]  = useState<'promo' | 'bulk'>('promo');
+  const [promoPage,  setPromoPage]  = useState(1);
+  const [bulkPage,   setBulkPage]   = useState(1);
 
-  const { data: promoRes } = useQuery({ queryKey: ['promo-codes'], queryFn: getPromoCodesFn, staleTime: 30_000 });
-  const { data: bulkRes }  = useQuery({ queryKey: ['bulk-rules', user?.distributorId], queryFn: () => getBulkRulesFn(user?.distributorId || ''), enabled: !!user?.distributorId, staleTime: 30_000 });
+  const { data: promoRes } = useQuery({ queryKey: ['promo-codes', promoPage], queryFn: () => getPromoCodesFn({ page: promoPage, limit: 20 }), staleTime: 30_000 });
+  const { data: bulkRes }  = useQuery({ queryKey: ['bulk-rules', user?.distributorId, bulkPage], queryFn: () => getBulkRulesFn(user?.distributorId || '', { page: bulkPage, limit: 20 }), enabled: !!user?.distributorId, staleTime: 30_000 });
 
   const { mutate: deletePromo } = useMutation({ mutationFn: deletePromoCodeFn, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['promo-codes'] }); toast.success("O'chirildi"); } });
   const { mutate: deleteBulk }  = useMutation({ mutationFn: deleteBulkRuleFn,  onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['bulk-rules'] }); toast.success("O'chirildi"); } });
 
-  const promoCodes: any[] = promoRes?.data?.promoCodes || promoRes?.data || promoRes || [];
-  const bulkRules: any[]  = bulkRes?.data?.rules || bulkRes?.data || bulkRes || [];
+  const promoCodes: any[] = promoRes?.data || promoRes?.promoCodes || [];
+  const bulkRules: any[]  = bulkRes?.data?.rules || bulkRes?.rules || [];
+
+  const promoTotalPages = promoRes?.pagination?.totalPages ?? 1;
+  const bulkTotalPages  = bulkRes?.pagination?.totalPages  ?? 1;
+  const pagedPromo      = promoCodes;
+  const pagedBulk       = bulkRules;
 
   return (
     <div className="fade-in space-y-6 max-w-7xl mx-auto pb-12">
@@ -43,7 +50,7 @@ const PricingPage = () => {
 
       {activeTab === 'promo' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {promoCodes.map((promo: any) => (
+          {pagedPromo.map((promo: any) => (
             <div key={promo.id} className="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-4">
                 <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl"><Tag className="w-6 h-6" /></div>
@@ -67,6 +74,19 @@ const PricingPage = () => {
               </div>
             </div>
           ))}
+          {promoTotalPages > 1 && (
+            <div className="col-span-full flex items-center justify-center gap-3 mt-2">
+              <button onClick={() => setPromoPage(p => Math.max(1, p - 1))} disabled={promoPage === 1}
+                className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+                <ChevronLeft className="w-4 h-4" /> Oldingi
+              </button>
+              <span className="text-sm text-slate-500">{promoPage} / {promoTotalPages}</span>
+              <button onClick={() => setPromoPage(p => Math.min(promoTotalPages, p + 1))} disabled={promoPage === promoTotalPages}
+                className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+                Keyingi <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
           {promoCodes.length === 0 && (
             <div className="col-span-full py-12 text-center bg-white border border-dashed border-slate-300 rounded-2xl">
               <Ticket className="w-12 h-12 text-slate-200 mx-auto mb-3" />
@@ -87,7 +107,7 @@ const PricingPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-sm">
-              {bulkRules.map((rule: any) => (
+              {pagedBulk.map((rule: any) => (
                 <tr key={rule.id} className="hover:bg-slate-50">
                   <td className="px-6 py-4 font-bold text-slate-900">{rule.product?.name || 'Barcha mahsulotlar'}</td>
                   <td className="px-6 py-4 text-slate-600">{rule.minQuantity} dona</td>
@@ -102,6 +122,21 @@ const PricingPage = () => {
                 </tr>
               ))}
               {bulkRules.length === 0 && <tr><td colSpan={5} className="px-6 py-12 text-center text-slate-400">Chegirma qoidalari yo'q</td></tr>}
+              {bulkTotalPages > 1 && (
+                <tr><td colSpan={5} className="px-6 py-3">
+                  <div className="flex items-center justify-center gap-3">
+                    <button onClick={() => setBulkPage(p => Math.max(1, p - 1))} disabled={bulkPage === 1}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+                      <ChevronLeft className="w-4 h-4" /> Oldingi
+                    </button>
+                    <span className="text-sm text-slate-500">{bulkPage} / {bulkTotalPages}</span>
+                    <button onClick={() => setBulkPage(p => Math.min(bulkTotalPages, p + 1))} disabled={bulkPage === bulkTotalPages}
+                      className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+                      Keyingi <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </td></tr>
+              )}
             </tbody>
           </table>
         </div>

@@ -13,8 +13,8 @@ export interface PromoCodePayload {
 }
 
 // GET /api/promo-codes
-export const getPromoCodesFn = async () => {
-  const res = await api.get('/api/promo-codes');
+export const getPromoCodesFn = async (params?: { page?: number; limit?: number }) => {
+  const res = await api.get('/api/promo-codes', { params });
   return res.data;
 };
 

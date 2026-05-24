@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import {
   Users, Phone, MapPin, Package,
   AlertCircle, CheckCircle, XCircle, Search,
-  ChevronRight, Clock,
+  ChevronLeft, ChevronRight, Clock,
 } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
 import toast from 'react-hot-toast';
@@ -22,23 +22,28 @@ const ClientsPage = () => {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab,   setActiveTab]   = useState<'approved' | 'pending' | 'all'>('approved');
+  const [page,        setPage]        = useState(1);
 
   // ── GET /api/distributor/connections ─────────────────────────────────────
+  const statusParam = activeTab === 'all' ? undefined : activeTab === 'approved' ? 'APPROVED' : 'PENDING';
+
   const { data: connRes, isLoading } = useQuery({
-    queryKey: ['distributor-connections'],
-    queryFn: () => api.get('/api/distributor/connections').then(r => r.data),
+    queryKey: ['distributor-connections', activeTab, page],
+    queryFn: () => api.get('/api/distributor/connections', {
+      params: { status: statusParam, page, limit: 20 },
+    }).then(r => r.data),
+    retry: false,
+  });
+
+  const { data: pendingCountRes } = useQuery({
+    queryKey: ['distributor-connections-pending-count'],
+    queryFn: () => api.get('/api/distributor/connections', { params: { status: 'PENDING', page: 1, limit: 1 } }).then(r => r.data),
     retry: false,
   });
 
   const allConnections: any[] = connRes?.data || connRes?.connections || connRes || [];
-
-  // Statusga qarab ajratish
-  const approvedClients = allConnections.filter((c: any) =>
-    c.status === 'APPROVED' || c.linkStatus === 'APPROVED'
-  );
-  const pendingClients  = allConnections.filter((c: any) =>
-    c.status === 'PENDING'  || c.linkStatus === 'PENDING'
-  );
+  const approvedClients = allConnections;
+  const pendingTotal    = pendingCountRes?.pagination?.total ?? 0;
 
   // ── PATCH /api/distributor/connections/{linkId} ───────────────────────────
   const { mutate: approveClient, isPending: approving } = useMutation({
@@ -65,6 +70,7 @@ const ClientsPage = () => {
   const getClient = (c: any) => c.client || c.store || c;
 
   const filteredApproved = approvedClients.filter((c: any) => {
+    if (!searchQuery) return true;
     const cl = getClient(c);
     const q  = searchQuery.toLowerCase();
     return (
@@ -81,11 +87,9 @@ const ClientsPage = () => {
 
   const clientsWithDebt = approvedClients.filter((c: any) => getClient(c)?.totalDebt > 0);
 
-  const displayList = activeTab === 'approved'
-    ? (searchQuery ? filteredApproved : approvedClients)
-    : activeTab === 'pending'
-    ? pendingClients
-    : allConnections;
+  const displayList = activeTab === 'approved' ? filteredApproved : allConnections;
+  const totalPages  = connRes?.pagination?.totalPages ?? 1;
+  const paged       = displayList;
 
   if (isLoading) return (
     <div className="flex justify-center items-center min-h-[50vh]">
@@ -102,7 +106,7 @@ const ClientsPage = () => {
           <h1 className="text-2xl font-bold text-slate-900">Mijozlar</h1>
           <p className="text-slate-500 text-sm mt-1">
             {approvedClients.length} ta do'kon ulangan
-            {pendingClients.length > 0 && ` • ${pendingClients.length} ta kutilmoqda`}
+            {pendingTotal > 0 && ` • ${pendingTotal} ta kutilmoqda`}
           </p>
         </div>
         {totalDebt > 0 && (
@@ -118,7 +122,7 @@ const ClientsPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
           { label: 'Ulangan do\'konlar', value: approvedClients.length,      icon: Users,       bg: 'bg-violet-100', c: 'text-violet-600' },
-          { label: 'Kutilmoqda',         value: pendingClients.length,        icon: Clock,       bg: 'bg-amber-100',  c: 'text-amber-600'  },
+          { label: 'Kutilmoqda',         value: pendingTotal,        icon: Clock,       bg: 'bg-amber-100',  c: 'text-amber-600'  },
           { label: 'Jami ulanishlar',    value: allConnections.length,        icon: Package,     bg: 'bg-sky-100',    c: 'text-sky-600'    },
           { label: 'Nasiyadorlar',       value: clientsWithDebt.length,       icon: AlertCircle, bg: 'bg-red-100',    c: 'text-red-600'    },
         ].map((card) => (
@@ -144,10 +148,10 @@ const ClientsPage = () => {
           <div className="flex gap-1 bg-slate-100 p-1 rounded-xl">
             {[
               { id: 'approved', label: 'Ulangan do\'konlar', count: approvedClients.length },
-              { id: 'pending',  label: "Ulanish so'rovlari", count: pendingClients.length  },
+              { id: 'pending',  label: "Ulanish so'rovlari", count: pendingTotal  },
               { id: 'all',      label: 'Barchasi',           count: allConnections.length  },
             ].map((tab) => (
-              <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
+              <button key={tab.id} onClick={() => { setActiveTab(tab.id as any); setPage(1); }}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab.id ? 'bg-white text-violet-600 shadow-sm' : 'text-slate-600 hover:text-slate-800'}`}>
                 {tab.label}
                 {tab.count > 0 && (
@@ -162,7 +166,7 @@ const ClientsPage = () => {
           <div className="relative max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input type="text" placeholder="Qidirish..." value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
               className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20" />
           </div>
         </div>
@@ -175,7 +179,7 @@ const ClientsPage = () => {
             </div>
           ) : (
             <div className="space-y-3">
-              {displayList.map((conn: any) => {
+              {paged.map((conn: any) => {
                 const cl     = getClient(conn);
                 const status = conn.status || conn.linkStatus;
                 const isPending = status === 'PENDING';
@@ -263,6 +267,20 @@ const ClientsPage = () => {
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 mt-4">
+              <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+                className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+                <ChevronLeft className="w-4 h-4" /> Oldingi
+              </button>
+              <span className="text-sm text-slate-500">{page} / {totalPages}</span>
+              <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+                Keyingi <ChevronRight className="w-4 h-4" />
+              </button>
             </div>
           )}
         </div>

@@ -1,27 +1,29 @@
 
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../api/api';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '../../components/ui/Badge';
 import { format } from 'date-fns';
 import { uz } from 'date-fns/locale';
-import { Filter, ClipboardList, Package, Truck, Clock } from 'lucide-react';
+import { Filter, ClipboardList, Package, Truck, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const StoreOrdersPage = () => {
   const navigate = useNavigate();
+  const [page, setPage] = useState(1);
 
   const { data: ordersResponse, isLoading } = useQuery({
-    queryKey: ['store-orders'],
+    queryKey: ['store-orders', page],
     queryFn: async () => {
-      const response = await api.get('/api/orders');
+      const response = await api.get('/api/orders', { params: { page, limit: 20 } });
       return response.data;
     },
     staleTime: 30000,
   });
 
-  const orders = Array.isArray(ordersResponse?.data) ? ordersResponse.data
-    : Array.isArray(ordersResponse) ? ordersResponse
-    : ordersResponse?.data?.orders || [];
+  const orders     = ordersResponse?.data || (Array.isArray(ordersResponse) ? ordersResponse : []);
+  const totalPages = ordersResponse?.pagination?.totalPages ?? 1;
+  const paged      = orders;
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -80,7 +82,7 @@ const StoreOrdersPage = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        {orders.map((order: any) => {
+        {paged.map((order: any) => {
           const StatusIcon = getStatusIcon(order.status);
           return (
             <div 
@@ -114,6 +116,20 @@ const StoreOrdersPage = () => {
           </div>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-4">
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+            <ChevronLeft className="w-4 h-4" /> Oldingi
+          </button>
+          <span className="text-sm text-slate-500">{page} / {totalPages}</span>
+          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+            Keyingi <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

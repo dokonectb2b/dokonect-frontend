@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getOrdersFn, updateOrderStatusFn } from '../../api/order.api';
 import {
   MapPin, PackageCheck, Loader2, Eye, Search,
-  CheckCircle, XCircle, Truck, X, RefreshCw,
+  CheckCircle, XCircle, Truck, X, RefreshCw, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
 import { format } from 'date-fns';
@@ -31,6 +31,7 @@ const DistributorOrdersPage = () => {
   const [updatingId,     setUpdatingId]     = useState<string | null>(null);
   const [filterStatus,   setFilterStatus]   = useState('');
   const [searchQuery,    setSearchQuery]    = useState('');
+  const [page,           setPage]           = useState(1);
   const [selectedIds,    setSelectedIds]    = useState<Set<string>>(new Set());
   const [acceptModal,    setAcceptModal]    = useState<{ orderId: string } | null>(null);
   const [bulkModal,      setBulkModal]      = useState(false);
@@ -38,8 +39,8 @@ const DistributorOrdersPage = () => {
 
   // ── Fetch orders ──────────────────────────────────────────────────────────
   const { data: fetchRes, isLoading, isFetching, dataUpdatedAt } = useQuery({
-    queryKey: ['distributor-orders', filterStatus],
-    queryFn: () => getOrdersFn({ status: filterStatus || undefined }),
+    queryKey: ['distributor-orders', filterStatus, page],
+    queryFn: () => getOrdersFn({ status: filterStatus || undefined, page, limit: 20 }),
     refetchInterval: 15_000,
     refetchIntervalInBackground: true,
     retry: false,
@@ -102,8 +103,8 @@ const DistributorOrdersPage = () => {
     onError: (e: any) => toast.error(e.response?.data?.message || 'Xatolik'),
   });
 
-  const allOrders: any[] = Array.isArray(fetchRes) ? fetchRes
-    : fetchRes?.data?.orders || fetchRes?.orders || fetchRes?.data || [];
+  const allOrders: any[] = fetchRes?.data || (Array.isArray(fetchRes) ? fetchRes : []);
+  const totalPages = fetchRes?.pagination?.totalPages ?? 1;
 
   const orders = allOrders.filter((o: any) => {
     if (!searchQuery) return true;
@@ -114,6 +115,7 @@ const DistributorOrdersPage = () => {
       String(o.orderNumber).includes(q)
     );
   });
+  const paged = orders;
 
   // Checkbox handlers
   const toggleSelect = (id: string) => {
@@ -166,10 +168,10 @@ const DistributorOrdersPage = () => {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input type="text" placeholder="Do'kon yoki ID..." value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => { setSearchQuery(e.target.value); setPage(1); }}
               className="pl-9 pr-4 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 bg-white" />
           </div>
-          <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}
+          <select value={filterStatus} onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }}
             className="border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 bg-white">
             <option value="">Barcha holat</option>
             {STATUS_OPTIONS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -232,7 +234,7 @@ const DistributorOrdersPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {orders.map((order: any) => {
+                {paged.map((order: any) => {
                   const statusInfo  = STATUS_OPTIONS.find((s) => s.value === order.status);
                   const isSelectable = ['NEW', 'ACCEPTED'].includes(order.status);
                   const isSelected   = selectedIds.has(order.id);
@@ -320,6 +322,20 @@ const DistributorOrdersPage = () => {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3 mt-4">
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+            <ChevronLeft className="w-4 h-4" /> Oldingi
+          </button>
+          <span className="text-sm text-slate-500">{page} / {totalPages}</span>
+          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+            Keyingi <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
       )}
 

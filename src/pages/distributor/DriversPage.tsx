@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/api';   // ← services/api emas
-import { Plus, Truck, Phone, MapPin, Loader2, Edit3, Power, X, Check } from 'lucide-react';
+import { Plus, Truck, Phone, MapPin, Loader2, Edit3, Power, X, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
 import toast from 'react-hot-toast';
 
@@ -17,13 +17,14 @@ const emptyForm: DriverFormData = { name: '', phone: '', vehicleType: 'Sedan', p
 
 const DriversPage = () => {
   const queryClient = useQueryClient();
+  const [page,          setPage]          = useState(1);
   const [showModal,     setShowModal]     = useState(false);
   const [editingDriver, setEditingDriver] = useState<any>(null);
   const [form,          setForm]          = useState<DriverFormData>(emptyForm);
 
   const { data: resp, isLoading } = useQuery({
-    queryKey: ['distributor-drivers'],
-    queryFn: () => api.get('/api/distributor/drivers').then(r => r.data),
+    queryKey: ['distributor-drivers', page],
+    queryFn: () => api.get('/api/distributor/drivers', { params: { page, limit: 20 } }).then(r => r.data),
     retry: false,
   });
 
@@ -55,6 +56,8 @@ const DriversPage = () => {
   });
 
   const drivers: any[] = resp?.data || resp?.drivers || [];
+  const totalPages = resp?.pagination?.totalPages ?? 1;
+  const paged      = drivers;
 
   const openEdit = (driver: any) => {
     setEditingDriver(driver);
@@ -102,7 +105,7 @@ const DriversPage = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {drivers.map((driver: any) => (
+          {paged.map((driver: any) => (
             <div key={driver.id} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 hover:shadow-md transition-shadow">
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -164,6 +167,20 @@ const DriversPage = () => {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-3">
+          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+            <ChevronLeft className="w-4 h-4" /> Oldingi
+          </button>
+          <span className="text-sm text-slate-500">{page} / {totalPages}</span>
+          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+            Keyingi <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
       )}
 

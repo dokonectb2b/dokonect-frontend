@@ -2,7 +2,6 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchProfileFn } from '../api/auth.api';
 import api from '../api/api';
 import { useAuthStore } from '../store/auth.store';
 import { Input } from '../components/ui/Input';
@@ -23,9 +22,9 @@ const ProfilePage = () => {
 
   const { data: profileRes, isLoading } = useQuery({
     queryKey: ['profile'],
-    queryFn: fetchProfileFn,
+    queryFn: () => api.get('/api/auth/me').then(r => r.data),
   });
-  const profile = profileRes?.data;
+  const profile = profileRes?.data || profileRes;
 
   const { register, handleSubmit, formState: { errors } } = useForm<ProfileForm>({
     resolver: zodResolver(profileSchema),

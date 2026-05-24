@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { DollarSign, TrendingUp, Award, Download } from 'lucide-react';
+import { DollarSign, TrendingUp, Award, Download, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { getDriverEarningsFn } from '../../api/driver.api';
@@ -13,15 +13,17 @@ const TABS = [
 
 export const DriverEarningsPage: React.FC = () => {
   const [period, setPeriod] = useState<'today' | 'week' | 'month'>('today');
+  const [page,   setPage]   = useState(1);
 
   const { data: earningsRes } = useQuery({
-    queryKey: ['driver-earnings', period],
-    queryFn: () => getDriverEarningsFn(period),
+    queryKey: ['driver-earnings', period, page],
+    queryFn: () => getDriverEarningsFn({ period, page, limit: 20 }),
     staleTime: 30_000,
   });
 
   const earnings     = earningsRes?.data || earningsRes || {};
   const earningsList: any[] = earnings.earnings || [];
+  const totalPages   = earnings.pagination?.totalPages ?? 1;
 
   return (
     <div className="min-h-screen bg-slate-900 text-white p-6">
@@ -46,7 +48,7 @@ export const DriverEarningsPage: React.FC = () => {
 
       <div className="flex gap-2 mb-6">
         {TABS.map((tab) => (
-          <button key={tab.key} onClick={() => setPeriod(tab.key as any)}
+          <button key={tab.key} onClick={() => { setPeriod(tab.key as any); setPage(1); }}
             className={`flex-1 py-3 rounded-xl font-medium transition-colors ${period === tab.key ? 'bg-sky-500 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>
             {tab.label}
           </button>
@@ -95,6 +97,19 @@ export const DriverEarningsPage: React.FC = () => {
           ))}
           {earningsList.length === 0 && <div className="text-center py-8 text-slate-500">Bu davr uchun daromad yo'q</div>}
         </div>
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3 pt-4 border-t border-slate-700 mt-2">
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+              className="flex items-center gap-1.5 px-3 py-2 bg-slate-700 rounded-lg text-sm text-slate-300 hover:bg-slate-600 disabled:opacity-40 transition-colors">
+              <ChevronLeft className="w-4 h-4" /> Oldingi
+            </button>
+            <span className="text-sm text-slate-400">{page} / {totalPages}</span>
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+              className="flex items-center gap-1.5 px-3 py-2 bg-slate-700 rounded-lg text-sm text-slate-300 hover:bg-slate-600 disabled:opacity-40 transition-colors">
+              Keyingi <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
 
       <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}

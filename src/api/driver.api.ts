@@ -38,8 +38,8 @@ export const updateDriverOrderStatusFn = async ({
   return res.data;
 };
 
-// GET /api/driver/earnings?period=xxx
-export const getDriverEarningsFn = async (period: string) => {
-  const res = await api.get('/api/driver/earnings', { params: { period } });
+// GET /api/driver/earnings
+export const getDriverEarningsFn = async (params: { period?: string; page?: number; limit?: number }) => {
+  const res = await api.get('/api/driver/earnings', { params });
   return res.data;
 };

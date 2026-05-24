@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   CreditCard, Banknote, AlertCircle, Truck, CalendarDays,
   CheckCircle2, Clock, TrendingUp, Search, Filter,
-  ChevronDown, Phone, Store,
+  ChevronDown, Phone, Store, ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import { DayPicker, DateRange } from 'react-day-picker';
 import { format, subDays } from 'date-fns';
@@ -31,6 +31,7 @@ const PaymentsPage = () => {
   const [search,       setSearch]       = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [methodFilter, setMethodFilter] = useState('');
+  const [page,         setPage]         = useState(1);
   const [range, setRange] = useState<DateRange>({ from: subDays(new Date(), 7), to: new Date() });
   const calRef = useRef<HTMLDivElement>(null);
 
@@ -61,7 +62,6 @@ const PaymentsPage = () => {
   const drivers: any[] = data.driverPayments || [];
   const online:  any[] = data.onlinePayments || [];
 
-  // ── Barcha to'lovlarni yoyib ro'yxat qilish ──────────────────────────────
   const allDriverRows: any[] = drivers.flatMap((d: any) =>
     (d.collections || []).map((c: any) => ({
       ...c,
@@ -73,7 +73,6 @@ const PaymentsPage = () => {
 
   const allOnlineRows: any[] = online.map((p: any) => ({ ...p, type: 'online' }));
 
-  // ── Filter ────────────────────────────────────────────────────────────────
   const filterRow = (row: any) => {
     const q = search.toLowerCase();
     const matchSearch = !q ||
@@ -89,8 +88,11 @@ const PaymentsPage = () => {
   const filteredOnline = allOnlineRows.filter(filterRow);
   const currentRows    = tab === 'driver' ? filteredDriver : filteredOnline;
 
-  // Jami (filtered)
   const filteredTotal = currentRows.reduce((s: number, r: any) => s + (r.amount || 0), 0);
+
+  const PAGE_SIZE  = 20;
+  const totalPages = Math.ceil(currentRows.length / PAGE_SIZE);
+  const paged      = currentRows.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   if (isLoading) return (
     <div className="flex items-center justify-center min-h-[60vh]">
@@ -139,9 +141,9 @@ const PaymentsPage = () => {
       {/* ── KPI Cards ── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {[
-          { key: 'online', label: 'Online to\'lovlar', icon: CreditCard, color: 'indigo', value: summary.onlineTotal || 0, sub: `${summary.onlineCount || 0} ta buyurtma` },
-          { key: 'driver', label: 'Haydovchi naqt',   icon: Banknote,   color: 'emerald', value: summary.cashTotal || 0,   sub: `${summary.cashCount || 0} ta buyurtma`  },
-          { key: null,     label: "To'lanmagan",      icon: AlertCircle, color: 'red',    value: summary.unpaidTotal || 0, sub: 'Kutilmoqda' },
+          { key: 'online', label: "Online to'lovlar", icon: CreditCard,  color: 'indigo',  value: summary.onlineTotal || 0, sub: `${summary.onlineCount || 0} ta buyurtma` },
+          { key: 'driver', label: 'Haydovchi naqt',   icon: Banknote,    color: 'emerald', value: summary.cashTotal   || 0, sub: `${summary.cashCount   || 0} ta buyurtma` },
+          { key: null,     label: "To'lanmagan",      icon: AlertCircle, color: 'red',     value: summary.unpaidTotal || 0, sub: 'Kutilmoqda' },
         ].map((card) => (
           <div key={card.label}
             onClick={() => card.key && setTab(card.key as any)}
@@ -164,10 +166,10 @@ const PaymentsPage = () => {
       {/* ── Tabs ── */}
       <div className="flex gap-2 bg-slate-100 p-1.5 rounded-2xl w-fit">
         {[
-          { key: 'driver', label: 'Haydovchi naqt',  icon: Truck      },
-          { key: 'online', label: "Online to'lovlar", icon: CreditCard },
+          { key: 'driver', label: 'Haydovchi naqt',   icon: Truck      },
+          { key: 'online', label: "Online to'lovlar",  icon: CreditCard },
         ].map(({ key, label, icon: Icon }) => (
-          <button key={key} onClick={() => setTab(key as any)}
+          <button key={key} onClick={() => { setTab(key as any); setPage(1); }}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-black transition-all ${
               tab === key ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'
             }`}>
@@ -179,18 +181,16 @@ const PaymentsPage = () => {
       {/* ── Filters ── */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
         <div className="flex flex-col md:flex-row gap-3">
-          {/* Qidiruv */}
           <div className="flex-1 relative">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <input value={search} onChange={e => setSearch(e.target.value)}
+            <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
               placeholder="Do'kon nomi yoki haydovchi nomi..."
               className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-slate-50" />
           </div>
 
-          {/* Status filter */}
           <div className="relative">
             <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+            <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1); }}
               className="pl-9 pr-8 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-slate-50 appearance-none">
               <option value="">Barcha statuslar</option>
               <option value="PAID">To'langan</option>
@@ -201,11 +201,10 @@ const PaymentsPage = () => {
             <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
           </div>
 
-          {/* Method filter (only online) */}
           {tab === 'online' && (
             <div className="relative">
               <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <select value={methodFilter} onChange={e => setMethodFilter(e.target.value)}
+              <select value={methodFilter} onChange={e => { setMethodFilter(e.target.value); setPage(1); }}
                 className="pl-9 pr-8 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 bg-slate-50 appearance-none">
                 <option value="">Barcha usullar</option>
                 <option value="CARD">Karta</option>
@@ -217,16 +216,14 @@ const PaymentsPage = () => {
             </div>
           )}
 
-          {/* Tozalash */}
           {(search || statusFilter || methodFilter) && (
-            <button onClick={() => { setSearch(''); setStatusFilter(''); setMethodFilter(''); }}
+            <button onClick={() => { setSearch(''); setStatusFilter(''); setMethodFilter(''); setPage(1); }}
               className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-500 hover:text-red-500 hover:border-red-200 transition-all bg-slate-50">
               Tozalash
             </button>
           )}
         </div>
 
-        {/* Result count */}
         <div className="mt-3 flex items-center justify-between text-xs text-slate-400 border-t border-slate-100 pt-3">
           <span>{currentRows.length} ta natija topildi</span>
           <span>Jami: <strong className="text-slate-700">{filteredTotal.toLocaleString('uz-UZ')} UZS</strong></span>
@@ -251,7 +248,7 @@ const PaymentsPage = () => {
                   <th className="px-4 py-3.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">#</th>
                   <th className="px-4 py-3.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Do'kon</th>
                   <th className="px-4 py-3.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                    {tab === 'driver' ? 'Haydovchi' : 'To\'lov usuli'}
+                    {tab === 'driver' ? 'Haydovchi' : "To'lov usuli"}
                   </th>
                   <th className="px-4 py-3.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Sana</th>
                   <th className="px-4 py-3.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-wider">Status</th>
@@ -259,15 +256,13 @@ const PaymentsPage = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
-                {currentRows.map((row: any, i: number) => {
+                {paged.map((row: any, i: number) => {
                   const st     = STATUS_CFG[row.paymentStatus] || STATUS_CFG.UNPAID;
                   const method = METHOD_LABEL[row.method] || row.method;
                   return (
                     <tr key={row.orderId || i} className="hover:bg-slate-50/70 transition-colors">
-                      {/* # */}
-                      <td className="px-4 py-3.5 text-slate-400 text-xs font-semibold">{i + 1}</td>
+                      <td className="px-4 py-3.5 text-slate-400 text-xs font-semibold">{(page - 1) * PAGE_SIZE + i + 1}</td>
 
-                      {/* Do'kon */}
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-2.5">
                           <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 font-black text-sm flex items-center justify-center shrink-0">
@@ -284,7 +279,6 @@ const PaymentsPage = () => {
                         </div>
                       </td>
 
-                      {/* Haydovchi / Usul */}
                       <td className="px-4 py-3.5">
                         {tab === 'driver' ? (
                           <div className="flex items-center gap-2">
@@ -300,13 +294,11 @@ const PaymentsPage = () => {
                         )}
                       </td>
 
-                      {/* Sana */}
                       <td className="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">
                         {row.date ? format(new Date(row.date), 'd MMM yyyy', { locale: uz }) : '—'}
                         {row.date && <span className="block text-xs text-slate-400">{format(new Date(row.date), 'HH:mm')}</span>}
                       </td>
 
-                      {/* Status */}
                       <td className="px-4 py-3.5">
                         <span className={`inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-xl ${st.bg} ${st.text}`}>
                           {row.paymentStatus === 'PAID'
@@ -316,7 +308,6 @@ const PaymentsPage = () => {
                         </span>
                       </td>
 
-                      {/* Summa */}
                       <td className="px-4 py-3.5 text-right">
                         <span className={`font-black text-sm ${row.paymentStatus === 'PAID' ? 'text-emerald-600' : row.paymentStatus === 'UNPAID' ? 'text-red-500' : 'text-slate-900'}`}>
                           {(row.amount || 0).toLocaleString('uz-UZ')} UZS
@@ -327,6 +318,21 @@ const PaymentsPage = () => {
                 })}
               </tbody>
             </table>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-3 px-5 py-4 border-t border-slate-100">
+                <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+                  <ChevronLeft className="w-4 h-4" /> Oldingi
+                </button>
+                <span className="text-sm text-slate-500">{page} / {totalPages}</span>
+                <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
+                  className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
+                  Keyingi <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
 
             {/* Footer */}
             <div className="flex items-center justify-between px-5 py-4 border-t border-slate-100 bg-slate-50/60">

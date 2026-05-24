@@ -52,8 +52,8 @@ export const deletePriceRuleFn = async (id: string) => {
 // ─── Bulk Rules ───────────────────────────────────────────────────────────────
 
 // GET /api/pricing/bulk-rules?productId=xxx
-export const getBulkRulesFn = async (productId: string) => {
-  const res = await api.get('/api/pricing/bulk-rules', { params: { productId } });
+export const getBulkRulesFn = async (_distributorId: string, params?: { productId?: string; page?: number; limit?: number }) => {
+  const res = await api.get('/api/pricing/bulk-rules', { params });
   return res.data;
 };
 
