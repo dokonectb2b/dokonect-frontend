@@ -1,47 +1,72 @@
 interface LogoProps {
   size?: number;
-  variant?: 'full' | 'icon';
+  variant?: "full" | "icon";
   className?: string;
   dark?: boolean;
 }
 
-const DokonectLogo = ({ size = 40, variant = 'full', className = '', dark = false }: LogoProps) => {
-  const gid = `dg-${Math.random().toString(36).substr(2, 9)}`;
+const DokonectLogo = ({
+  size = 40,
+  variant = "full",
+  className = "",
+  dark = false,
+}: LogoProps) => {
   return (
-    <div className={`flex items-center gap-2.5 ${className}`}>
-      <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <div className={`flex items-center gap-3 ${className}`}>
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 100 100"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="drop-shadow-sm"
+      >
         <defs>
-          <linearGradient id={gid} x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#3B82F6" />
-            <stop offset="100%" stopColor="#1D4ED8" />
+          <linearGradient id="logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#1A7F5A" />
+            <stop offset="100%" stopColor="#2563EB" />
           </linearGradient>
         </defs>
-        {/* D shape */}
+        {/* Main D Shape */}
         <path
-          d="M20 20 L50 20 C70 20 85 35 85 50 C85 65 70 80 50 80 L20 80 Z"
-          fill={`url(#${gid})`}
+          d="M20 20C20 20 50 20 65 20C80 20 90 35 90 50C90 65 80 80 65 80C50 80 20 80 20 80V20Z"
+          fill="url(#logo-grad)"
         />
-        {/* Inner white D */}
-        <path d="M32 32 H46 C58 32 68 42 68 50 C68 58 58 68 46 68 H32 Z" fill="white" />
-        {/* Connection dots */}
-        <circle cx="44" cy="40" r="4" fill={`url(#${gid})`} />
-        <circle cx="56" cy="50" r="4" fill={`url(#${gid})`} />
-        <circle cx="44" cy="60" r="4" fill={`url(#${gid})`} />
-        {/* Connection lines */}
-        <line x1="44" y1="40" x2="56" y2="50" stroke={`url(#${gid})`} strokeWidth="2.5" strokeLinecap="round" />
-        <line x1="56" y1="50" x2="44" y2="60" stroke={`url(#${gid})`} strokeWidth="2.5" strokeLinecap="round" />
+        {/* Inner white shape */}
+        <path
+          d="M32 32H50C60 32 68 40 68 50C68 60 60 68 50 68H32V32Z"
+          fill="white"
+        />
+        {/* Connective nodes */}
+        <circle cx="45" cy="40" r="5" fill="url(#logo-grad)" />
+        <circle cx="58" cy="50" r="5" fill="url(#logo-grad)" />
+        <circle cx="45" cy="60" r="5" fill="url(#logo-grad)" />
+        {/* Connective lines */}
+        <line
+          x1="45"
+          y1="40"
+          x2="58"
+          y2="50"
+          stroke="url(#logo-grad)"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
+        <line
+          x1="58"
+          y1="50"
+          x2="45"
+          y2="60"
+          stroke="url(#logo-grad)"
+          strokeWidth="3"
+          strokeLinecap="round"
+        />
       </svg>
-      {variant === 'full' && (
+      {variant === "full" && (
         <span
-          style={{
-            fontWeight: 800,
-            fontSize: size * 0.5,
-            letterSpacing: '-0.03em',
-            lineHeight: 1,
-            color: dark ? '#0D1526' : '#3B82F6',
-            fontFamily: "'DM Sans', 'Outfit', 'Inter', sans-serif",
-          }}>
-          Dokonect
+          className={`font-extrabold tracking-tight text-brand-text`}
+          style={{ fontSize: size * 0.6 }}
+        >
+          Doko<span className="text-brand-green">nect</span>
         </span>
       )}
     </div>
