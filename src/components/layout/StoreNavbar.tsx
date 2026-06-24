@@ -6,10 +6,10 @@ import {
   LogOut,
   LayoutGrid,
   PackageOpen,
-  Zap,
   MessageSquare,
   Users,
 } from "lucide-react";
+import DokonectLogo from "../ui/DokonectLogo";
 
 const navLinks = [
   { to: "/store/catalog", icon: LayoutGrid, label: "Katalog" },

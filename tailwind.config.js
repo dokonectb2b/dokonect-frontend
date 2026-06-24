@@ -20,6 +20,7 @@ export default {
           500: "#1A7F5A",
           600: "#156347",
         },
+      },
       borderRadius: {
         xl: "12px",
         "2xl": "16px",

@@ -8,15 +8,7 @@ import {
   Truck,
   ChevronRight,
   Clock,
-  BarChart3,
   CheckCircle2,
-  ShieldCheck,
-  Zap,
-  Globe,
-  MessageSquare,
-  CreditCard,
-  AlertCircle,
-  Hexagon,
 } from "lucide-react";
 import { useAuthStore } from "../store/authStore";
 import api from "../api/api";
@@ -746,6 +738,7 @@ export default function LandingPage() {
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isYearly, setIsYearly] = useState(false);
+  const [ctaEmail, setCtaEmail] = useState("");
   const [lang, setLang] = useState<Lang>("uz");
   const [statsVisible, setStatsVisible] = useState(false);
   const [countValues, setCountValues] = useState<number[]>([0, 0, 0, 0]);
@@ -754,6 +747,7 @@ export default function LandingPage() {
   const t = TRANSLATIONS[lang];
 
   const PROBLEM_ICONS = ["💸", "📉", "🔗"];
+  const PROBLEM_ACCENTS = ["#EF4444", "#F59E0B", "#3B82F6"];
   const HOW_ICONS = ["🏪", "⚡", "🚗", "💳"];
   const FEATURE_ICONS = ["🛒", "📊", "💰", "🚗", "📈", "🔔"];
   const STATS_NUMBER_ITEMS = [
@@ -766,6 +760,7 @@ export default function LandingPage() {
 
   const problemCards = PROBLEM_ICONS.map((icon, index) => ({
     icon,
+    accent: PROBLEM_ACCENTS[index],
     stat: t.problem.cards[index].stat,
     label: t.problem.cards[index].label,
     desc: t.problem.cards[index].desc,
@@ -878,7 +873,7 @@ export default function LandingPage() {
       <nav
         className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-[rgba(10,15,30,0.88)] backdrop-blur-[12px] border-b border-[rgba(255,255,255,0.06)] shadow-[0_20px_80px_rgba(0,0,0,0.18)]" : "bg-transparent"}`}
       >
-        <div className="mx-auto flex h-18 max-w-[1440px] items-center justify-between px-8 py-4">
+        <div className="mx-auto flex h-18 max-w-[1440px] items-center justify-between px-4 sm:px-8 py-4">
           <div className="flex items-center gap-4">
             <div className="inline-flex items-center gap-3 rounded-2xl bg-[rgba(255,255,255,0.04)] px-3 py-2">
               <img src="/logo-icon.jpg" alt="Dokonect" className="h-10 w-10 rounded-2xl object-cover" />
@@ -920,7 +915,7 @@ export default function LandingPage() {
             </div>
             <button
               onClick={() => setShowDemo(true)}
-              className="rounded-[10px] border border-[#1E2A3A] bg-[rgba(255,255,255,0.04)] px-4 py-2 text-[#94A3B8] transition-all duration-200 hover:border-[#1A7F5A] hover:text-[#F1F5F9]"
+              className="hidden sm:inline-flex rounded-[10px] border border-[#1E2A3A] bg-[rgba(255,255,255,0.04)] px-4 py-2 text-[#94A3B8] transition-all duration-200 hover:border-[#1A7F5A] hover:text-[#F1F5F9]"
             >
               {t.nav.demoBtn}
             </button>
@@ -934,7 +929,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      <section className="relative overflow-hidden py-[120px] px-8">
+      <section className="relative overflow-hidden py-20 lg:py-30 px-4 sm:px-8">
         <div className="absolute inset-0 hero-grid opacity-20" />
         <div className="absolute left-0 top-0 h-[260px] w-[260px] rounded-full bg-[#1A7F5A]/15 blur-3xl" />
         <div className="absolute right-0 top-1/3 h-[320px] w-[320px] rounded-full bg-[#22C55E]/15 blur-3xl" />
@@ -953,7 +948,7 @@ export default function LandingPage() {
               </div>
               <div className="space-y-5 text-[3.5rem] font-bold leading-[1.05] tracking-[-0.04em] text-[#F1F5F9] sm:text-[4.5rem] md:text-[5rem] lg:text-[5.75rem]">
                 <motion.div className="overflow-hidden">
-                  {t.hero.headline.map((word, index) => (
+                  {t.hero.headline.map((word: string, index: number) => (
                     <motion.span
                       key={word}
                       initial={{ opacity: 0, y: 20 }}
@@ -966,7 +961,7 @@ export default function LandingPage() {
                   ))}
                 </motion.div>
                 <motion.div className="overflow-hidden">
-                  {t.hero.secondaryHeadline.map((word, index) => (
+                  {t.hero.secondaryHeadline.map((word: string, index: number) => (
                     <motion.span
                       key={word}
                       initial={{ opacity: 0, y: 20 }}
@@ -979,7 +974,7 @@ export default function LandingPage() {
                   ))}
                 </motion.div>
                 <motion.div className="overflow-hidden">
-                  {t.hero.tertiaryHeadline.map((word, index) => (
+                  {t.hero.tertiaryHeadline.map((word: string, index: number) => (
                     <motion.span
                       key={word}
                       initial={{ opacity: 0, y: 20 }}
@@ -1010,7 +1005,7 @@ export default function LandingPage() {
                 </button>
               </div>
               <div className="mt-10 flex flex-wrap gap-6 text-sm text-[#94A3B8]">
-                {t.hero.benefits.map((benefit) => (
+                {t.hero.benefits.map((benefit: string) => (
                   <span key={benefit} className="inline-flex items-center gap-2">
                     <CheckCircle2 className="h-4 w-4 text-[#22C55E]" /> {benefit}
                   </span>
@@ -1123,7 +1118,7 @@ export default function LandingPage() {
               {t.problem.description}
             </p>
           </div>
-          <div className="grid gap-6 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {problemCards.map((card, index) => (
               <motion.div
                 key={card.stat}
@@ -1159,7 +1154,7 @@ export default function LandingPage() {
               {t.solution.description}
             </p>
           </div>
-          <div className="grid gap-6 lg:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {howSteps.map((step, index) => (
               <motion.div
                 key={index}
@@ -1220,7 +1215,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-24 px-8">
+      <section id="features" className="py-24 px-8">
         <div className="mx-auto max-w-[1440px]">
           <div className="text-center mb-16">
             <span className="text-[12px] font-bold uppercase tracking-[3px] text-[#22C55E]">{t.features.sectionTitle}</span>
@@ -1255,15 +1250,15 @@ export default function LandingPage() {
           </h2>
         </div>
         <div className="mx-auto max-w-[1440px]">
-          <div className="grid gap-6 lg:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {statsItems.map((item, index) => (
               <div key={index} className="rounded-[1.5rem] border border-[rgba(255,255,255,0.08)] bg-[#111827] p-8 text-center">
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-3xl bg-[#0F172A] text-xl">
                   {item.icon}
                 </div>
                 <p className="text-5xl font-extrabold bg-gradient-to-r from-[#22C55E] to-[#60A5FA] bg-clip-text text-transparent">
-                  {item.target}
-                  {index === 2 ? 'K+' : index === 3 ? '/7' : ''}
+                  {countValues[index]}
+                  {index === 0 ? '%' : index === 1 ? 'x' : index === 2 ? 'K+' : '/7'}
                 </p>
                 <p className="mt-3 text-sm text-[#94A3B8]">{t.stats.labels[index]}</p>
               </div>
@@ -1360,12 +1355,12 @@ export default function LandingPage() {
             <span className="text-[12px] font-bold uppercase tracking-[3px] text-[#22C55E]">{t.comparison.sectionTitle}</span>
             <h2 className="mt-4 text-4xl font-semibold text-[#F1F5F9] leading-tight">{t.comparison.heading}</h2>
           </div>
-          <div className="overflow-hidden rounded-[2rem] border border-[#1E2A3A] bg-[#111827] shadow-[0_40px_100px_rgba(0,0,0,0.18)]">
-            <table className="w-full border-collapse text-sm">
+          <div className="overflow-x-auto rounded-[2rem] border border-[#1E2A3A] bg-[#111827] shadow-[0_40px_100px_rgba(0,0,0,0.18)]">
+            <table className="w-full min-w-160 border-collapse text-sm">
               <thead>
                 <tr className="bg-[#0F172A] text-[#94A3B8]">
                   <th className="p-6 text-left">{t.comparison.featureHeader}</th>
-                  {['Dokonect', 'SmartUp', 'CDAgent', 'DoctorSales'].map((name) => (
+                  {COMPETITORS.map((name) => (
                     <th key={name} className={`p-6 text-center ${name === 'Dokonect' ? 'text-[#22C55E]' : ''}`}>
                       {name}
                     </th>
@@ -1393,7 +1388,7 @@ export default function LandingPage() {
       </section>
 
       <section className="py-24 px-8">
-        <div className="mx-auto max-w-[1440px] rounded-[2rem] border border-[rgba(34,197,94,0.2)] bg-gradient-to-br from-[#064E3B] to-[#0A0F1E] p-12 shadow-[0_40px_120px_rgba(0,0,0,0.2)]">
+        <div className="mx-auto max-w-[1440px] rounded-[2rem] border border-[rgba(34,197,94,0.2)] bg-gradient-to-br from-[#064E3B] to-[#0A0F1E] p-6 sm:p-12 shadow-[0_40px_120px_rgba(0,0,0,0.2)]">
           <div className="text-center">
             <span className="text-[12px] font-bold uppercase tracking-[3px] text-[#22C55E]">{t.cta.sectionTitle}</span>
             <h2 className="mt-4 text-4xl font-semibold text-[#F1F5F9] leading-tight">{t.cta.heading}</h2>
@@ -1403,11 +1398,13 @@ export default function LandingPage() {
             <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <input
                 type="email"
+                value={ctaEmail}
+                onChange={(e) => setCtaEmail(e.target.value)}
                 placeholder={t.cta.placeholder}
                 className="w-full max-w-[380px] rounded-2xl border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.07)] px-5 py-4 text-sm text-white outline-none placeholder:text-slate-400 focus:border-[#22C55E] focus:ring-2 focus:ring-[#22C55E]/20"
               />
               <button
-                onClick={() => navigate('/register')}
+                onClick={() => navigate(ctaEmail ? `/register?email=${encodeURIComponent(ctaEmail)}` : '/register')}
                 className="rounded-2xl bg-[#22C55E] px-8 py-4 text-sm font-semibold text-[#0A0F1E] shadow-lg shadow-[#22C55E]/25 transition-all hover:scale-[1.02]"
               >
                 {t.cta.button}
@@ -1422,7 +1419,7 @@ export default function LandingPage() {
       </section>
 
       <footer id="contact" className="bg-[#060B14] px-8 py-20 border-t border-[#1E2A3A] text-[#94A3B8]">
-        <div className="mx-auto grid max-w-[1440px] gap-12 lg:grid-cols-4">
+        <div className="mx-auto grid max-w-[1440px] gap-12 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="mb-6 flex flex-wrap items-center gap-4">
               <img src="/logo-full.png" alt="Dokonect" className="h-10 w-auto object-contain" />

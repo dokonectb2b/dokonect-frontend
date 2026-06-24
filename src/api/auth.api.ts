@@ -5,7 +5,7 @@ export interface RegisterPayload {
   phone: string;
   email: string;
   password: string;
-  role: 'ADMIN' | 'DISTRIBUTOR' | 'STORE' | 'DRIVER';
+  role: 'ADMIN' | 'DISTRIBUTOR' | 'CLIENT' | 'DRIVER';
   storeName?: string;
   region?: string;
   companyName?: string;
@@ -36,5 +36,17 @@ export const registerFn = async (data: RegisterPayload) => {
 // GET PROFILE
 export const getMeFn = async () => {
   const response = await api.get('/api/auth/me');
+  return response.data;
+};
+
+// SEND OTP (Telegram bot)
+export const sendOtpFn = async (phone: string) => {
+  const response = await api.post('/api/auth/send-otp', { phone });
+  return response.data;
+};
+
+// VERIFY OTP + REGISTER
+export const verifyRegisterFn = async (data: RegisterPayload & { code: string }) => {
+  const response = await api.post('/api/auth/verify-register', data);
   return response.data;
 };

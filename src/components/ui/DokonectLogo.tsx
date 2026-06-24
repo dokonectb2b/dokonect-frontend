@@ -9,7 +9,7 @@ const DokonectLogo = ({
   size = 40,
   variant = "full",
   className = "",
-  dark = false,
+  dark: _dark = false,
 }: LogoProps) => {
   return (
     <div className={`flex items-center gap-3 ${className}`}>

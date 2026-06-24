@@ -1,22 +1,35 @@
 import { useQuery } from '@tanstack/react-query';
-import { Wallet, TrendingUp, AlertTriangle, ArrowUpRight, History, Calendar, CheckSquare, MoreHorizontal } from 'lucide-react';
+import {
+  Wallet, TrendingUp, AlertTriangle, History,
+  CreditCard, Clock, ArrowUpRight, CheckCircle,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { uz } from 'date-fns/locale';
-import { Badge } from '../../components/ui/Badge';
-import { motion } from 'framer-motion';
-
+import { useNavigate } from 'react-router-dom';
 import { getClientFinanceFn } from '../../api/client.api';
 import { getOrdersFn } from '../../api/order.api';
 
+const ORDER_STATUS: Record<string, { label: string; cls: string }> = {
+  NEW:        { label: 'Yangi',          cls: 'bg-amber-50 text-amber-700 border border-amber-200'  },
+  ACCEPTED:   { label: 'Qabul qilindi',  cls: 'bg-blue-50 text-blue-700 border border-blue-200'    },
+  REJECTED:   { label: 'Rad etildi',     cls: 'bg-red-50 text-red-700 border border-red-200'       },
+  ASSIGNED:   { label: 'Tayinlandi',     cls: 'bg-purple-50 text-purple-700 border border-purple-200'},
+  PICKED:     { label: 'Olib ketildi',   cls: 'bg-sky-50 text-sky-700 border border-sky-200'       },
+  IN_TRANSIT: { label: "Yo'lda",         cls: 'bg-sky-50 text-sky-700 border border-sky-200'       },
+  DELIVERED:  { label: 'Yetkazildi',     cls: 'bg-green-50 text-green-700 border border-green-200' },
+  RETURNED:   { label: 'Qaytarildi',     cls: 'bg-slate-100 text-slate-600 border border-slate-200'},
+  CANCELLED:  { label: 'Bekor qilindi',  cls: 'bg-red-50 text-red-700 border border-red-200'       },
+};
+
 const FinancePage = () => {
-  // ── Finance summary ───────────────────────────────────────────────────────
+  const navigate = useNavigate();
+
   const { data: financeRes } = useQuery({
     queryKey: ['client-finance'],
     queryFn: getClientFinanceFn,
     staleTime: 60_000,
   });
 
-  // ── Orders (to'lov holati bilan) ──────────────────────────────────────────
   const { data: ordersRes, isLoading: isOrdersLoading } = useQuery({
     queryKey: ['store-orders', ''],
     queryFn: () => getOrdersFn({ limit: 20 } as any),
@@ -24,185 +37,228 @@ const FinancePage = () => {
   });
 
   const summary = financeRes?.data?.summary || financeRes?.data || financeRes || {};
-  const orders: any[] = ordersRes?.data?.orders || ordersRes?.orders || [];
+  const orders: any[]  = ordersRes?.data?.orders || ordersRes?.orders || [];
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'PAID':    return 'success';
-      case 'PARTIAL': return 'warning';
-      case 'UNPAID':  return 'warning';
-      case 'OVERDUE': return 'danger';
-      default:        return 'secondary';
-    }
-  };
+  const isOverdue = (summary.overdueDebt || 0) > 0;
 
-  const cards = [
+  const kpis = [
     {
-      label: 'Jami qarzdorlik',
-      value: (summary.totalDebt || 0).toLocaleString('uz-UZ'),
-      icon: Wallet,
-      color: 'bg-indigo-600',
-      subtext: 'Barcha distribyutorlardan',
-      trend: 'Ayni vaqtda',
+      label:   'Umumiy qarz',
+      value:   (summary.totalDebt || 0).toLocaleString('uz-UZ'),
+      unit:    'UZS',
+      icon:    Wallet,
+      iconCls: 'bg-red-50 text-red-500',
+      sub:     `${summary.activeDebtsCount || 0} ta ochiq hisob`,
+      subCls:  'text-slate-400',
     },
     {
-      label: "Muddati o'tgan",
-      value: (summary.overdueDebt || 0).toLocaleString('uz-UZ'),
-      icon: AlertTriangle,
-      color: 'bg-red-500',
-      subtext: "Tezroq to'lash tavsiya etiladi",
-      trend: summary.overdueDebt > 0 ? 'Kritik' : 'Hammasi joyida',
+      label:   "Muddati o'tgan",
+      value:   (summary.overdueDebt || 0).toLocaleString('uz-UZ'),
+      unit:    'UZS',
+      icon:    AlertTriangle,
+      iconCls: isOverdue ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-600',
+      sub:     isOverdue ? "Tezroq to'lang!" : "Hammasi o'z vaqtida",
+      subCls:  isOverdue ? 'text-red-500' : 'text-green-600',
     },
     {
-      label: 'Bu oygi xaridlar',
-      value: (summary.totalSpent || 0).toLocaleString('uz-UZ'),
-      icon: TrendingUp,
-      color: 'bg-emerald-500',
-      subtext: "O'tgan oyga nisbatan",
-      trend: "O'smoqda",
+      label:   'Jami xaridlar',
+      value:   (summary.totalSpent || 0).toLocaleString('uz-UZ'),
+      unit:    'UZS',
+      icon:    TrendingUp,
+      iconCls: 'bg-green-50 text-brand-green',
+      sub:     'Yetkazilgan buyurtmalar',
+      subCls:  'text-slate-400',
     },
   ];
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto pb-12">
+    <div className="bg-[#F8FAFC] min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
-      {/* Header */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-4 border-b border-slate-200 pb-8">
-        <div>
-          <h1 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight">Moliya va Hisob-kitob</h1>
-          <p className="text-slate-500 font-medium mt-1">To'lovlar tarixi, qarzdorliklar va limitlarni kuzatib boring.</p>
+        {/* ── Header ───────────────────────────────────────────────── */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-bold text-[#0F172A]">Moliya va Hisob-kitob</h1>
+            <p className="text-sm text-slate-500 mt-0.5">
+              To'lovlar tarixi, qarzdorlik va moliyaviy holat
+            </p>
+          </div>
+          <button className="inline-flex items-center gap-2 px-4 py-2.5 bg-brand-green text-white text-sm font-semibold rounded-xl hover:bg-[#156347] transition-colors duration-200 self-start sm:self-auto">
+            <ArrowUpRight className="w-4 h-4" />
+            To'lov kiritish
+          </button>
         </div>
-        <button className="px-6 py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10">
-          <ArrowUpRight className="w-4 h-4" /> To'lov kiritish
-        </button>
-      </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {cards.map((card, i) => (
-          <motion.div
-            key={card.label}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }}
-            className="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm relative overflow-hidden group"
-          >
-            <div className={`absolute -right-4 -top-4 w-24 h-24 ${card.color} opacity-[0.03] rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500`} />
-            <div className="flex items-start justify-between mb-6">
-              <div className={`p-4 rounded-2xl ${card.color} text-white shadow-xl`}>
-                <card.icon className="w-6 h-6 shrink-0" />
+        {/* ── KPI Cards ────────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {kpis.map((kpi) => (
+            <div key={kpi.label} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+              <div className="flex items-center gap-3 mb-4">
+                <div className={`p-2.5 rounded-xl ${kpi.iconCls}`}>
+                  <kpi.icon className="w-4 h-4" />
+                </div>
+                <p className="text-sm text-slate-500">{kpi.label}</p>
               </div>
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest border border-slate-100 px-3 py-1 rounded-full">{card.trend}</span>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-2xl font-bold text-[#0F172A]">{kpi.value}</span>
+                <span className="text-xs text-slate-400">{kpi.unit}</span>
+              </div>
+              <p className={`text-xs ${kpi.subCls}`}>{kpi.sub}</p>
             </div>
-            <p className="text-sm font-bold text-slate-500 mb-1">{card.label}</p>
-            <div className="flex items-baseline gap-2">
-              <h2 className="text-3xl font-black text-slate-900 tracking-tighter">{card.value}</h2>
-              <span className="text-xs font-black text-slate-400">UZS</span>
-            </div>
-            <p className="text-[11px] font-bold text-slate-400 mt-4 uppercase tracking-widest flex items-center gap-1.5 opacity-60">
-              <CheckSquare className="w-3 h-3" /> {card.subtext}
-            </p>
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-        {/* Orders Table */}
-        <div className="lg:col-span-2 bg-white rounded-2xl sm:rounded-[40px] border border-slate-200 shadow-sm overflow-hidden min-h-125">
-          <div className="px-4 sm:px-8 py-4 sm:py-6 border-b border-slate-100 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-slate-100 rounded-lg"><History className="w-5 h-5 text-slate-600" /></div>
-              <h2 className="text-lg font-black text-slate-900 tracking-tight">Xaridlar va To'lovlar</h2>
-            </div>
-            <div className="flex gap-2">
-              <button className="p-2 bg-slate-50 text-slate-400 rounded-lg hover:text-slate-600 transition-colors"><Calendar className="w-5 h-5" /></button>
-              <button className="p-2 bg-slate-50 text-slate-400 rounded-lg hover:text-slate-600 transition-colors"><MoreHorizontal className="w-5 h-5" /></button>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-slate-50 text-[10px] uppercase tracking-widest font-black text-slate-400">
-                <tr>
-                  <th className="px-3 sm:px-8 py-3">ID / Vazifa</th>
-                  <th className="px-3 sm:px-8 py-3 text-center hidden sm:table-cell">Status</th>
-                  <th className="px-3 sm:px-8 py-3 text-right">Summa</th>
-                  <th className="px-3 sm:px-8 py-3 text-right hidden sm:table-cell">Amaliyot</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 font-sans">
-                {orders.map((order: any) => (
-                  <tr key={order.id} className="hover:bg-slate-50 transition-colors group cursor-pointer">
-                    <td className="px-3 sm:px-8 py-3 sm:py-5">
-                      <div className="flex flex-col">
-                        <span className="text-xs font-black text-indigo-500 font-mono tracking-tight uppercase">ORD-{order.orderNumber}</span>
-                        <span className="text-sm font-bold text-slate-900 mt-1">{order.distributor?.companyName}</span>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-                          {format(new Date(order.createdAt), 'dd MMMM', { locale: uz })}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-3 sm:px-8 py-3 sm:py-5 text-center hidden sm:table-cell">
-                      <Badge variant={getStatusColor(order.paymentStatus || order.status) as any} className="font-black text-[10px] tracking-widest uppercase">
-                        {order.paymentStatus || order.status}
-                      </Badge>
-                    </td>
-                    <td className="px-3 sm:px-8 py-3 sm:py-5 text-right">
-                      <span className="text-sm font-black text-slate-900">{(order.totalAmount || 0).toLocaleString('uz-UZ')}</span>
-                      <span className="text-[10px] font-bold text-slate-400 ml-1">UZS</span>
-                    </td>
-                    <td className="px-3 sm:px-8 py-3 sm:py-5 text-right hidden sm:table-cell">
-                      <button className="text-[10px] font-black text-indigo-500 uppercase tracking-widest border border-indigo-100 px-3 py-1.5 rounded-xl hover:bg-indigo-50 transition-colors opacity-0 group-hover:opacity-100">
-                        Batafsil
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {!isOrdersLoading && orders.length === 0 && (
-                  <tr><td colSpan={4} className="px-8 py-20 text-center"><p className="text-slate-400 font-bold">Hech qanday amaliyot topilmadi</p></td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          ))}
         </div>
 
-        {/* Right Side */}
-        <div className="space-y-6">
-          <div className="bg-slate-900 text-white rounded-[40px] p-8 relative overflow-hidden shadow-2xl">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 blur-3xl rounded-full -mr-16 -mt-16" />
-            <h3 className="text-lg font-black tracking-tight mb-4">Moliyaviy Maslahat</h3>
-            <p className="text-slate-400 text-sm font-medium leading-relaxed mb-6">
-              Mahsulotlaringizni "Bulk Order" (ulgurji) orqali xarid qilishni tavsiya etamiz.
-            </p>
-            <button className="w-full py-4 bg-indigo-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-500 transition-colors">
-              Limitni oshirish
-            </button>
+        {/* ── Main Grid ────────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+          {/* Orders Table */}
+          <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2.5 px-6 py-4 border-b border-slate-100">
+              <History className="w-4 h-4 text-slate-400" />
+              <h2 className="text-sm font-semibold text-[#0F172A]">Xaridlar tarixi</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-100 bg-slate-50 text-xs text-slate-500 font-medium">
+                    <th className="px-6 py-3 text-left">Buyurtma</th>
+                    <th className="px-6 py-3 text-left hidden sm:table-cell">Distribyutor</th>
+                    <th className="px-6 py-3 text-center">Status</th>
+                    <th className="px-6 py-3 text-right">Summa</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.map((order: any, i: number) => {
+                    const st = ORDER_STATUS[order.status] || {
+                      label: order.status,
+                      cls:   'bg-slate-50 text-slate-600 border border-slate-200',
+                    };
+                    return (
+                      <tr
+                        key={order.id}
+                        onClick={() => navigate(`/store/orders/${order.id}`)}
+                        className={`cursor-pointer hover:bg-slate-50 transition-colors duration-150 ${i < orders.length - 1 ? 'border-b border-slate-100' : ''}`}
+                      >
+                        <td className="px-6 py-3.5">
+                          <p className="text-xs font-mono font-semibold text-brand-green">
+                            ORD-{order.orderNumber}
+                          </p>
+                          <p className="text-xs text-slate-400 mt-0.5">
+                            {format(new Date(order.createdAt), 'dd MMM yyyy', { locale: uz })}
+                          </p>
+                        </td>
+                        <td className="px-6 py-3.5 hidden sm:table-cell">
+                          <p className="text-sm text-[#0F172A]">{order.distributor?.companyName}</p>
+                        </td>
+                        <td className="px-6 py-3.5 text-center">
+                          <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium ${st.cls}`}>
+                            {st.label}
+                          </span>
+                        </td>
+                        <td className="px-6 py-3.5 text-right">
+                          <p className="text-sm font-semibold text-[#0F172A]">
+                            {(order.totalAmount || 0).toLocaleString('uz-UZ')}
+                          </p>
+                          <p className="text-xs text-slate-400">UZS</p>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                  {!isOrdersLoading && orders.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-16 text-center text-sm text-slate-400">
+                        Hech qanday amaliyot topilmadi
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
-          <div className="bg-indigo-50 rounded-[40px] p-8 border border-indigo-100">
-            <h3 className="text-lg font-black text-indigo-900 tracking-tight mb-4">Distribyutor Limitlari</h3>
-            <div className="space-y-4">
-              {(summary.distributorLimits || []).slice(0, 2).map((lim: any, i: number) => (
-                <div key={i} className="flex flex-col gap-2 p-4 bg-white rounded-2xl border border-indigo-100">
-                  <div className="flex justify-between items-center">
-                    <span className="text-xs font-black text-slate-800">{lim.name || 'Distribyutor'}</span>
-                    <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">
-                      {Math.round((lim.used / lim.total) * 100)}% ishlatildi
-                    </span>
+          {/* Right Sidebar */}
+          <div className="space-y-4">
+
+            {/* Debt Status Card */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="flex items-center gap-2.5 px-5 py-4 border-b border-slate-100">
+                <CreditCard className="w-4 h-4 text-slate-400" />
+                <h2 className="text-sm font-semibold text-[#0F172A]">Qarz holati</h2>
+              </div>
+              <div className="p-5 space-y-0 divide-y divide-slate-100">
+                <div className="flex items-center justify-between py-3">
+                  <div className="flex items-center gap-2.5">
+                    <CreditCard className="w-4 h-4 text-slate-400" />
+                    <span className="text-sm text-slate-600">Faol qarzlar</span>
                   </div>
-                  <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div className="h-full bg-indigo-600 rounded-full" style={{ width: `${Math.min((lim.used / lim.total) * 100, 100)}%` }} />
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-400">
-                    {(lim.used || 0).toLocaleString('uz-UZ')} / {(lim.total || 0).toLocaleString('uz-UZ')} UZS
+                  <span className="text-sm font-bold text-[#0F172A]">
+                    {summary.activeDebtsCount ?? 0} ta
                   </span>
                 </div>
-              ))}
-              {(!summary.distributorLimits || summary.distributorLimits.length === 0) && (
-                <p className="text-sm text-indigo-900/40 font-medium text-center py-4">Limit ma'lumotlari yo'q</p>
-              )}
+                <div className="flex items-center justify-between py-3">
+                  <div className="flex items-center gap-2.5">
+                    <Clock className="w-4 h-4 text-slate-400" />
+                    <span className="text-sm text-slate-600">Muddati o'tgan</span>
+                  </div>
+                  {isOverdue ? (
+                    <span className="text-sm font-bold text-red-600">
+                      {summary.overdueDebt.toLocaleString('uz-UZ')} UZS
+                    </span>
+                  ) : (
+                    <div className="flex items-center gap-1.5 text-green-600">
+                      <CheckCircle className="w-3.5 h-3.5" />
+                      <span className="text-sm font-semibold">Yo'q</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center justify-between py-3">
+                  <div className="flex items-center gap-2.5">
+                    <TrendingUp className="w-4 h-4 text-slate-400" />
+                    <span className="text-sm text-slate-600">Jami xarid</span>
+                  </div>
+                  <span className="text-sm font-bold text-[#0F172A]">
+                    {(summary.totalSpent || 0).toLocaleString('uz-UZ')} UZS
+                  </span>
+                </div>
+              </div>
             </div>
+
+            {/* Overdue Warning */}
+            {isOverdue && (
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+                  <h3 className="text-sm font-semibold text-red-700">Diqqat!</h3>
+                </div>
+                <p className="text-xl font-bold text-red-700 mb-0.5">
+                  {summary.overdueDebt.toLocaleString('uz-UZ')} UZS
+                </p>
+                <p className="text-xs text-red-400 leading-relaxed mb-4">
+                  Ushbu miqdordagi qarzdorlik muddati o'tgan.
+                </p>
+                <button className="w-full py-2.5 bg-red-600 text-white text-xs font-semibold rounded-xl hover:bg-red-700 transition-colors duration-200">
+                  To'lovni amalga oshirish
+                </button>
+              </div>
+            )}
+
+            {/* CTA */}
+            <div className="bg-brand-green rounded-2xl p-5 text-white">
+              <p className="text-[10px] text-white/50 uppercase tracking-widest font-semibold mb-1">
+                Tavsiya
+              </p>
+              <h3 className="text-base font-bold mb-2">Bulk xarid qiling</h3>
+              <p className="text-xs text-white/60 leading-relaxed mb-4">
+                Ulgurji buyurtma bilan kredit limitingizni samarali ishlating.
+              </p>
+              <button
+                onClick={() => navigate('/store/catalog')}
+                className="w-full py-2.5 bg-white text-brand-green text-xs font-bold rounded-xl hover:bg-green-50 transition-colors duration-200"
+              >
+                Katalogga o'tish →
+              </button>
+            </div>
+
           </div>
         </div>
       </div>

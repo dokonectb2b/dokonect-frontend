@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { SafeImage } from '../../components/ui/SafeImage';
-import { Search, MapPin, Star, CheckCircle2, Phone, Package, ShoppingBag, Info, ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+import {
+  Search, MapPin, Star, CheckCircle2, Phone,
+  Package, Info, ChevronLeft, ChevronRight,
+} from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getClientDistributorsFn } from '../../api/client.api';
 
@@ -14,175 +16,182 @@ const DistributorsPage = () => {
 
   const { data: distRes, isLoading } = useQuery({
     queryKey: ['client-distributors', search, region, page],
-    queryFn: () => getClientDistributorsFn({ search: search || undefined, region: region || undefined, page, limit: 20 }),
+    queryFn: () => getClientDistributorsFn({
+      search: search || undefined,
+      region: region || undefined,
+      page,
+      limit: 20,
+    }),
     staleTime: 30_000,
     retry: false,
   });
 
   const distributors: any[] = distRes?.data || distRes?.distributors || [];
   const totalPages = distRes?.pagination?.totalPages ?? 1;
-  const paged      = distributors;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12">
+    <div className="bg-[#F8FAFC] min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
 
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight">Distribyutorlar</h1>
-          <p className="text-slate-500 font-medium mt-1">Hamkorlar toping va mahsulotlarini ko'ring.</p>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-xl font-bold text-[#0F172A]">Distribyutorlar</h1>
+            <p className="text-sm text-slate-500 mt-0.5">Hamkorlar toping va mahsulotlarini ko'ring.</p>
+          </div>
+          {distributors.length > 0 && (
+            <div className="flex items-center gap-1.5 bg-green-50 text-brand-green px-3 py-1.5 rounded-xl text-xs font-semibold border border-green-100">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              {distributors.length} ta distribyutor
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-xl text-sm font-semibold">
-          <CheckCircle2 className="w-4 h-4" /> {distributors.length} ta distribyutor
-        </div>
-      </div>
 
-      {/* Filters */}
-      <div className="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4">
-        <div className="flex-1 relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-          <input
-            type="text"
-            placeholder="Nomi bo'yicha qidirish..."
-            className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500/20 font-medium outline-none"
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          />
-        </div>
-        <div className="w-full md:w-64 relative">
-          <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
-          <select
-            className="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl focus:ring-2 focus:ring-indigo-500/20 font-medium appearance-none outline-none"
-            value={region}
-            onChange={(e) => setRegion(e.target.value)}
-          >
-            <option value="">Barcha hududlar</option>
-            <option value="Toshkent">Toshkent</option>
-            <option value="Samarqand">Samarqand</option>
-            <option value="Andijon">Andijon</option>
-            <option value="Namangan">Namangan</option>
-            <option value="Farg'ona">Farg'ona</option>
-            <option value="Buxoro">Buxoro</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Grid */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3, 4, 5, 6].map((n) => (
-            <div key={n} className="h-64 bg-slate-100 animate-pulse rounded-4xl" />
-          ))}
-        </div>
-      ) : distributors.length === 0 ? (
-        <div className="text-center py-20 bg-slate-50 rounded-[40px] border-2 border-dashed border-slate-200">
-          <Search className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-          <p className="text-slate-500 font-bold">Distribyutorlar topilmadi</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {paged.map((dist: any, i: number) => (
-            <motion.div
-              key={dist.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="bg-white rounded-4xl border border-slate-200 shadow-sm overflow-hidden hover:shadow-xl hover:shadow-indigo-500/5 transition-all group"
+        {/* Filters */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col sm:flex-row gap-3">
+          <div className="flex-1 relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <input
+              type="text"
+              placeholder="Nomi bo'yicha qidirish..."
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green transition-all duration-200"
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            />
+          </div>
+          <div className="sm:w-56 relative">
+            <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <select
+              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-700 appearance-none focus:outline-none focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green transition-all duration-200"
+              value={region}
+              onChange={(e) => setRegion(e.target.value)}
             >
-              <div className="p-6">
-                {/* Logo */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 overflow-hidden group-hover:scale-105 transition-transform">
-                    {dist.logo ? (
-                      <SafeImage src={dist.logo} alt={dist.companyName} fallback="company" className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-2xl font-black text-indigo-500">
-                        {dist.companyName?.charAt(0) || 'D'}
+              <option value="">Barcha hududlar</option>
+              <option value="Toshkent">Toshkent</option>
+              <option value="Samarqand">Samarqand</option>
+              <option value="Andijon">Andijon</option>
+              <option value="Namangan">Namangan</option>
+              <option value="Farg'ona">Farg'ona</option>
+              <option value="Buxoro">Buxoro</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Grid */}
+        {isLoading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <div key={n} className="h-56 bg-white animate-pulse rounded-2xl border border-slate-200" />
+            ))}
+          </div>
+        ) : distributors.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <Search className="w-10 h-10 text-slate-200 mb-4" />
+            <p className="text-sm font-semibold text-slate-600 mb-1">Distribyutorlar topilmadi</p>
+            <p className="text-xs text-slate-400">Boshqa hudud yoki qidiruv so'zi bilan urinib ko'ring</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {distributors.map((dist: any) => (
+              <div
+                key={dist.id}
+                className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200 overflow-hidden group"
+              >
+                <div className="p-5">
+                  {/* Logo + Verified */}
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-14 h-14 bg-slate-50 rounded-xl flex items-center justify-center border border-slate-100 overflow-hidden">
+                      {dist.logo ? (
+                        <SafeImage
+                          src={dist.logo}
+                          alt={dist.companyName}
+                          fallback="company"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-xl font-bold text-brand-green">
+                          {dist.companyName?.charAt(0) || 'D'}
+                        </span>
+                      )}
+                    </div>
+                    {dist.isVerified && (
+                      <span className="flex items-center gap-1 text-xs font-semibold text-brand-green bg-green-50 px-2 py-1 rounded-lg border border-green-100">
+                        <CheckCircle2 className="w-3 h-3" /> Tasdiqlangan
                       </span>
                     )}
                   </div>
-                  {dist.isVerified && (
-                    <span className="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-xl">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Tasdiqlangan
-                    </span>
-                  )}
-                </div>
 
-                {/* Name */}
-                <h3 className="text-lg font-black text-slate-900 tracking-tight mb-1 group-hover:text-indigo-600 transition-colors">
-                  {dist.companyName}
-                </h3>
+                  {/* Name */}
+                  <h3 className="text-base font-bold text-[#0F172A] mb-1 group-hover:text-brand-green transition-colors duration-200">
+                    {dist.companyName}
+                  </h3>
 
-                {/* Rating + Region */}
-                <div className="flex items-center gap-4 text-sm font-bold text-slate-500 mb-4">
-                  <div className="flex items-center gap-1">
-                    <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                    <span>{dist.rating || '0.0'}</span>
-                  </div>
-                  {dist.region && (
+                  {/* Rating + Region */}
+                  <div className="flex items-center gap-3 text-xs text-slate-500 mb-3">
                     <div className="flex items-center gap-1">
-                      <MapPin className="w-4 h-4" />
-                      <span>{dist.region}</span>
+                      <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+                      <span className="font-medium">{dist.rating || '0.0'}</span>
                     </div>
-                  )}
-                </div>
+                    {dist.region && (
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5" />
+                        <span>{dist.region}</span>
+                      </div>
+                    )}
+                  </div>
 
-                {/* Contact info */}
-                <div className="space-y-1.5 mb-5 p-3 bg-slate-50 rounded-2xl">
+                  {/* Contact */}
                   {dist.phone && (
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                    <div className="flex items-center gap-2 text-xs text-slate-500 mb-4 bg-slate-50 rounded-xl px-3 py-2">
                       <Phone className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      <span className="font-medium">{dist.phone}</span>
+                      <span>{dist.phone}</span>
                     </div>
                   )}
-                  {dist.address && (
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      <span className="font-medium truncate">{dist.address}</span>
-                    </div>
-                  )}
-                </div>
 
-                {/* Buttons — always visible */}
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => navigate(`/store/catalog?distributorId=${dist.id}`)}
-                    className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center justify-center gap-1.5"
-                  >
-                    <Package className="w-3.5 h-3.5" /> Mahsulotlar
-                  </button>
-                  <button
-                    onClick={() => navigate(`/store/distributors/${dist.id}`)}
-                    className="py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center gap-1.5"
-                  >
-                    <Info className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => navigate('/store/orders')}
-                    className="py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-95 flex items-center justify-center gap-1.5"
-                  >
-                    <ShoppingBag className="w-3.5 h-3.5" />
-                  </button>
+                  {/* Actions */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => navigate(`/store/catalog?distributorId=${dist.id}`)}
+                      className="flex-1 py-2.5 bg-brand-green text-white rounded-xl text-xs font-semibold hover:bg-[#156347] transition-colors duration-200 flex items-center justify-center gap-1.5"
+                    >
+                      <Package className="w-3.5 h-3.5" /> Mahsulotlar
+                    </button>
+                    <button
+                      onClick={() => navigate(`/store/distributors/${dist.id}`)}
+                      className="py-2.5 px-3.5 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold hover:bg-slate-200 transition-colors duration-200 flex items-center justify-center"
+                    >
+                      <Info className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </motion.div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
 
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3">
-          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
-            <ChevronLeft className="w-4 h-4" /> Oldingi
-          </button>
-          <span className="text-sm text-slate-500">{page} / {totalPages}</span>
-          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-            className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm text-slate-500 hover:text-slate-800 disabled:opacity-40 transition-colors">
-            Keyingi <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      )}
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-500 hover:text-slate-800 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
+            >
+              <ChevronLeft className="w-4 h-4" /> Oldingi
+            </button>
+            <span className="text-sm text-slate-500">
+              <span className="font-semibold text-[#0F172A]">{page}</span> / {totalPages}
+            </span>
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-500 hover:text-slate-800 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200"
+            >
+              Keyingi <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

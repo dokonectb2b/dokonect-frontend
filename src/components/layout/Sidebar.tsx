@@ -5,6 +5,7 @@ import {
   Zap, Warehouse, Tag, Settings,
   FolderOpen, DollarSign, Users,
   ChevronLeft, ChevronRight, ShoppingCart, CreditCard,
+  Navigation,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
@@ -33,6 +34,12 @@ const clientMenu = [
   { to: '/store/chat',         icon: MessageSquare,   label: 'Chat' },
 ];
 
+const driverMenu = [
+  { to: '/driver/home',      icon: LayoutDashboard, label: 'Bosh sahifa' },
+  { to: '/driver/dashboard', icon: Navigation,      label: 'Dashboard' },
+  { to: '/driver/earnings',  icon: DollarSign,      label: 'Daromadlar' },
+];
+
 interface SidebarProps {
   onClose?: () => void;
   collapsed?: boolean;
@@ -43,9 +50,12 @@ const Sidebar = ({ onClose, collapsed = false, onToggleCollapse }: SidebarProps)
   const navigate = useNavigate();
   const { logout, user } = useAuthStore();
 
-  const menuItems = (user?.role === 'CLIENT' || user?.role === 'STORE')
-    ? clientMenu
-    : distributorMenu;
+  const menuItems =
+    user?.role === 'DRIVER'
+      ? driverMenu
+      : user?.role === 'CLIENT' || user?.role === 'STORE'
+      ? clientMenu
+      : distributorMenu;
 
   const handleLogout = () => {
     logout();
@@ -72,7 +82,11 @@ const Sidebar = ({ onClose, collapsed = false, onToggleCollapse }: SidebarProps)
                 Doko<span className="text-indigo-400 font-bold">nect</span>
               </span>
               <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1 whitespace-nowrap">
-                {(user?.role === 'CLIENT' || user?.role === 'STORE') ? "Do'kon egasi" : 'Platforma v3.0'}
+                {user?.role === 'DRIVER'
+                  ? 'Haydovchi'
+                  : user?.role === 'CLIENT' || user?.role === 'STORE'
+                  ? "Do'kon egasi"
+                  : 'Platforma v3.0'}
               </span>
             </div>
           )}

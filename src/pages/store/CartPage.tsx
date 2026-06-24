@@ -16,7 +16,6 @@ const CartPage = () => {
   const [deliveryDate, setDeliveryDate] = useState('');
   const navigate = useNavigate();
 
-  // Minimum sana = bugun
   const today = new Date().toISOString().split('T')[0];
 
   const { mutate, isPending } = useMutation({
@@ -32,9 +31,9 @@ const CartPage = () => {
   });
 
   const handleCheckout = () => {
-    if (!items.length)     return toast.error("Savat bo'sh");
-    if (!address.trim())   return toast.error('Manzilni kiriting');
-    if (!deliveryDate)     return toast.error('Yetkazib berish sanasini tanlang');
+    if (!items.length)   return toast.error("Savat bo'sh");
+    if (!address.trim()) return toast.error('Manzilni kiriting');
+    if (!deliveryDate)   return toast.error('Yetkazib berish sanasini tanlang');
 
     const distributorIds = [...new Set(items.map(i => i.distributorId))];
     if (distributorIds.length > 1) {
@@ -44,7 +43,7 @@ const CartPage = () => {
     mutate({
       distributorId:   items[0].distributorId,
       deliveryAddress: address,
-      dueDate:    deliveryDate,
+      dueDate:         deliveryDate,
       notes:           note,
       items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
     });
@@ -52,156 +51,197 @@ const CartPage = () => {
 
   if (!items.length) {
     return (
-      <div className="page flex flex-col items-center justify-center min-h-[60vh] text-center fade-in">
-        <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-4">
-          <ShoppingCart className="w-8 h-8 text-slate-400" />
+      <div className="bg-[#F8FAFC] min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center text-center px-4">
+          <div className="w-16 h-16 bg-white rounded-2xl border border-slate-200 shadow-sm flex items-center justify-center mb-4">
+            <ShoppingCart className="w-7 h-7 text-slate-300" />
+          </div>
+          <h2 className="text-base font-bold text-[#0F172A] mb-1">Savat bo'sh</h2>
+          <p className="text-sm text-slate-400 mb-6 max-w-xs">
+            Katalogdan mahsulot tanlang va savatga qo'shing
+          </p>
+          <button
+            onClick={() => navigate('/store/catalog')}
+            className="px-5 py-2.5 bg-brand-green text-white text-sm font-semibold rounded-xl hover:bg-[#156347] transition-colors duration-200"
+          >
+            Katalogga o'tish
+          </button>
         </div>
-        <h2 className="text-lg font-semibold text-slate-800 mb-1">Savat bo'sh</h2>
-        <p className="text-slate-500 text-sm mb-6 max-w-xs">Katalogdan mahsulot tanlang va savatga qo'shing</p>
-        <Button onClick={() => navigate('/store/catalog')}>Katalogga o'tish</Button>
       </div>
     );
   }
 
   return (
-    <div className="page fade-in">
-      <div className="mb-6">
-        <h1 className="text-xl font-bold text-slate-900">Savat</h1>
-        <p className="text-slate-500 text-sm mt-0.5">{items.length} ta mahsulot</p>
-      </div>
+    <div className="bg-[#F8FAFC] min-h-screen">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* Items */}
-        <div className="lg:col-span-2 space-y-3">
-          {items.map((item) => (
-            <div key={item.productId} className="flex gap-4 items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-              <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 shrink-0">
-                {item.imageUrl ? (
-                  <SafeImage src={item.imageUrl} alt={item.name} fallback="product" className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <Package className="w-6 h-6 text-slate-300" />
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-slate-800 text-sm truncate">{item.name}</h3>
-                <p className="text-violet-600 font-semibold text-sm mt-0.5">
-                  {(item.price || 0).toLocaleString('uz-UZ')} UZS
-                </p>
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-0.5 border border-slate-200">
-                    <button onClick={() => updateQuantity(item.productId, item.quantity - 1)} disabled={item.quantity <= 1}
-                      className="w-6 h-6 rounded-md bg-white shadow-sm flex items-center justify-center disabled:opacity-40 hover:bg-slate-100 transition-colors">
-                      <Minus className="w-3 h-3 text-slate-600" />
-                    </button>
-                    <span className="w-8 text-center text-sm font-semibold text-slate-800">{item.quantity}</span>
-                    <button onClick={() => updateQuantity(item.productId, item.quantity + 1)} disabled={item.quantity >= item.stock}
-                      className="w-6 h-6 rounded-md bg-white shadow-sm flex items-center justify-center disabled:opacity-40 hover:bg-slate-100 transition-colors">
-                      <Plus className="w-3 h-3 text-slate-600" />
-                    </button>
-                  </div>
-                  <span className="text-[11px] text-slate-400">{item.stock} ta mavjud</span>
-                </div>
-              </div>
-
-              <div className="flex flex-col items-end gap-3 shrink-0">
-                <button onClick={() => removeItem(item.productId)}
-                  className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-                <span className="text-sm font-bold text-slate-800">
-                  {((item.price || 0) * (item.quantity || 1)).toLocaleString('uz-UZ')}
-                </span>
-              </div>
-            </div>
-          ))}
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-xl font-bold text-[#0F172A]">Savat</h1>
+          <p className="text-sm text-slate-500 mt-0.5">{items.length} ta mahsulot</p>
         </div>
 
-        {/* Summary */}
-        <div className="lg:col-span-1">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sticky top-24">
-            <h3 className="font-semibold text-slate-800 mb-4">Buyurtma</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            <div className="space-y-3 mb-4">
-              {/* Manzil */}
-              <Input
-                label="Yetkazib berish manzili"
-                placeholder="Aniq manzilni kiriting"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                leftIcon={<MapPin className="w-4 h-4" />}
-              />
-
-              {/* Yetkazib berish sanasi */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Yetkazib berish sanasi <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                  <input
-                    type="date"
-                    min={today}
-                    value={deliveryDate}
-                    onChange={(e) => setDeliveryDate(e.target.value)}
-                    className={`w-full pl-10 pr-3.5 py-2.5 bg-white border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all shadow-sm ${
-                      !deliveryDate ? 'border-slate-200' : 'border-violet-400'
-                    }`}
-                  />
+          {/* Items */}
+          <div className="lg:col-span-2 space-y-3">
+            {items.map((item) => (
+              <div
+                key={item.productId}
+                className="flex gap-4 items-center bg-white p-4 rounded-2xl border border-slate-200 shadow-sm"
+              >
+                <div className="w-14 h-14 rounded-xl overflow-hidden bg-slate-50 border border-slate-100 shrink-0">
+                  {item.imageUrl ? (
+                    <SafeImage
+                      src={item.imageUrl}
+                      alt={item.name}
+                      fallback="product"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Package className="w-5 h-5 text-slate-300" />
+                    </div>
+                  )}
                 </div>
-                {!deliveryDate && (
-                  <p className="text-[11px] text-amber-500 flex items-center gap-1">
-                    <Calendar className="w-3 h-3" /> Sana tanlanmagan
+
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-semibold text-[#0F172A] truncate">{item.name}</h3>
+                  <p className="text-sm font-bold text-brand-green mt-0.5">
+                    {(item.price || 0).toLocaleString('uz-UZ')} UZS
                   </p>
-                )}
-              </div>
+                  <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-0.5 border border-slate-200">
+                      <button
+                        onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                        disabled={item.quantity <= 1}
+                        className="w-6 h-6 rounded-md bg-white shadow-sm flex items-center justify-center disabled:opacity-40 hover:bg-slate-100 transition-colors"
+                      >
+                        <Minus className="w-3 h-3 text-slate-600" />
+                      </button>
+                      <span className="w-8 text-center text-sm font-semibold text-[#0F172A]">
+                        {item.quantity}
+                      </span>
+                      <button
+                        onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                        disabled={item.quantity >= item.stock}
+                        className="w-6 h-6 rounded-md bg-white shadow-sm flex items-center justify-center disabled:opacity-40 hover:bg-slate-100 transition-colors"
+                      >
+                        <Plus className="w-3 h-3 text-slate-600" />
+                      </button>
+                    </div>
+                    <span className="text-xs text-slate-400">{item.stock} ta mavjud</span>
+                  </div>
+                </div>
 
-              {/* Izoh */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                  Izoh (ixtiyoriy)
-                </label>
-                <textarea
-                  className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all h-20 resize-none shadow-sm"
-                  placeholder="Qo'shimcha eslatma..."
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {/* Jami */}
-            <div className="border-t border-slate-100 pt-4 mb-4 space-y-2">
-              <div className="flex justify-between items-center text-sm text-slate-500">
-                <span>{items.reduce((s, i) => s + i.quantity, 0)} ta mahsulot</span>
-                <span>{totalAmount().toLocaleString('uz-UZ')} UZS</span>
-              </div>
-              {deliveryDate && (
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-slate-500">Yetkazish sanasi:</span>
-                  <span className="font-semibold text-violet-600">
-                    {new Date(deliveryDate).toLocaleDateString('uz-UZ', { day: '2-digit', month: 'long', year: 'numeric' })}
+                <div className="flex flex-col items-end gap-3 shrink-0">
+                  <button
+                    onClick={() => removeItem(item.productId)}
+                    className="p-1.5 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                  <span className="text-sm font-bold text-[#0F172A]">
+                    {((item.price || 0) * (item.quantity || 1)).toLocaleString('uz-UZ')}
                   </span>
                 </div>
-              )}
-              <div className="flex justify-between items-center border-t border-slate-100 pt-2">
-                <span className="font-semibold text-slate-700">Jami:</span>
-                <span className="text-lg font-bold text-violet-600">
-                  {totalAmount().toLocaleString('uz-UZ')} UZS
-                </span>
               </div>
+            ))}
+          </div>
+
+          {/* Summary */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 sticky top-24">
+              <h3 className="text-sm font-bold text-[#0F172A] mb-4">Buyurtma ma'lumotlari</h3>
+
+              <div className="space-y-3 mb-4">
+                {/* Address */}
+                <Input
+                  label="Yetkazib berish manzili"
+                  placeholder="Aniq manzilni kiriting"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  leftIcon={<MapPin className="w-4 h-4" />}
+                />
+
+                {/* Date */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Yetkazib berish sanasi <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <Calendar className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                    <input
+                      type="date"
+                      min={today}
+                      value={deliveryDate}
+                      onChange={(e) => setDeliveryDate(e.target.value)}
+                      className={`w-full pl-10 pr-3.5 py-2.5 bg-white border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green transition-all duration-200 ${
+                        deliveryDate ? 'border-brand-green' : 'border-slate-200'
+                      }`}
+                    />
+                  </div>
+                  {!deliveryDate && (
+                    <p className="text-xs text-amber-500 flex items-center gap-1">
+                      <Calendar className="w-3 h-3" /> Sana tanlanmagan
+                    </p>
+                  )}
+                </div>
+
+                {/* Note */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    Izoh (ixtiyoriy)
+                  </label>
+                  <textarea
+                    className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-green/20 focus:border-brand-green transition-all duration-200 h-20 resize-none"
+                    placeholder="Qo'shimcha eslatma..."
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Totals */}
+              <div className="border-t border-slate-100 pt-4 mb-4 space-y-2">
+                <div className="flex justify-between text-sm text-slate-500">
+                  <span>{items.reduce((s, i) => s + i.quantity, 0)} ta mahsulot</span>
+                  <span>{totalAmount().toLocaleString('uz-UZ')} UZS</span>
+                </div>
+                {deliveryDate && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-500">Yetkazish sanasi</span>
+                    <span className="font-semibold text-brand-green">
+                      {new Date(deliveryDate).toLocaleDateString('uz-UZ', {
+                        day: '2-digit', month: 'long', year: 'numeric',
+                      })}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between items-center border-t border-slate-100 pt-2">
+                  <span className="text-sm font-semibold text-slate-700">Jami</span>
+                  <span className="text-lg font-bold text-brand-green">
+                    {totalAmount().toLocaleString('uz-UZ')} UZS
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={handleCheckout}
+                disabled={isPending}
+                className="w-full py-3 bg-brand-green text-white text-sm font-bold rounded-xl hover:bg-[#156347] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                {isPending ? (
+                  <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <>Buyurtma berish <ArrowRight className="w-4 h-4" /></>
+                )}
+              </button>
+
+              <p className="text-center text-xs text-slate-400 mt-3">
+                Dokonect xavfsiz to'lov kafolati
+              </p>
             </div>
-
-            <Button className="w-full" size="lg" onClick={handleCheckout} isLoading={isPending}>
-              {!isPending && <>Buyurtma berish <ArrowRight className="w-4 h-4 ml-1.5" /></>}
-            </Button>
-
-            <p className="text-center text-[11px] text-slate-400 mt-3">
-              Dokonect xavfsiz to'lov kafolati
-            </p>
           </div>
         </div>
       </div>

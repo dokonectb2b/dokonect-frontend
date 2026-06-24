@@ -1,6 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --color-brand-green:   #1A7F5A;
+  --color-brand-green-dark: #156347;
+  --color-brand-blue:    #2563EB;
+  --color-brand-amber:   #F59E0B;
+  --color-brand-bg:      #F8FAFC;
+  --color-brand-text:    #0F172A;
+  --color-primary:       #1A7F5A;
+  --color-primary-50:    #f0fdf4;
+  --color-primary-500:   #1A7F5A;
+  --color-primary-600:   #156347;
+}
+
 @layer base {
   :root {
     --brand-primary: #1A7F5A;
