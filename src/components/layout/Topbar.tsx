@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../../store/authStore';
 import { Bell, Search, Globe, ChevronDown, User, LogOut, Settings, Shield, Menu } from 'lucide-react';
+import DokonectLogo from '../ui/DokonectLogo';
 import { AnimatePresence, motion } from 'framer-motion';
 import { getNotificationsFn, markNotificationReadFn, markAllNotificationsReadFn } from '../../api/notifications.api';
 
@@ -38,13 +39,16 @@ const Topbar = ({ onMenuClick }: { onMenuClick?: () => void } = {}) => {
   return (
     <header className="h-16 bg-white border-b border-slate-200 sticky top-0 z-40 px-6 sm:px-8 flex items-center justify-between shadow-sm backdrop-blur-md bg-white/80">
       
-      {/* Mobile hamburger */}
-      <button
-        onClick={onMenuClick}
-        className="lg:hidden p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors mr-2"
-      >
-        <Menu className="w-5 h-5" />
-      </button>
+      {/* Mobile: hamburger + logo */}
+      <div className="flex items-center gap-2 lg:hidden">
+        <button
+          onClick={onMenuClick}
+          className="p-2 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <DokonectLogo size={30} />
+      </div>
 
       {/* Left: Global Search */}
       <div className="relative flex-1 max-w-md hidden md:block group">

@@ -40,10 +40,21 @@ const ClientDetailPage      = lazy(() => import('./pages/distributor/ClientDetai
 const PaymentsPage          = lazy(() => import('./pages/distributor/PaymentsPage'));
 
 // Driver
-const DriverHomePage      = lazy(() => import('./pages/driver/DriverHomePage').then(m => ({ default: m.DriverHomePage })));
-const DriverDashboard     = lazy(() => import('./pages/driver/DriverDashboard').then(m => ({ default: m.DriverDashboard })));
-const ActiveDeliveryPage  = lazy(() => import('./pages/driver/ActiveDeliveryPage').then(m => ({ default: m.ActiveDeliveryPage })));
-const DriverEarningsPage  = lazy(() => import('./pages/driver/DriverEarningsPage').then(m => ({ default: m.DriverEarningsPage })));
+const DriverHomePage        = lazy(() => import('./pages/driver/DriverHomePage').then(m => ({ default: m.DriverHomePage })));
+const DriverDashboard       = lazy(() => import('./pages/driver/DriverDashboard').then(m => ({ default: m.DriverDashboard })));
+const ActiveDeliveryPage    = lazy(() => import('./pages/driver/ActiveDeliveryPage').then(m => ({ default: m.ActiveDeliveryPage })));
+const DriverEarningsPage    = lazy(() => import('./pages/driver/DriverEarningsPage').then(m => ({ default: m.DriverEarningsPage })));
+const TelegramDriverAuth    = lazy(() => import('./pages/driver/TelegramDriverAuth'));
+
+// Telegram Store (Mini App)
+const TgStoreAuth        = lazy(() => import('./pages/tg-store/TgStoreAuth'));
+const TgStoreLayout      = lazy(() => import('./pages/tg-store/TgStoreLayout'));
+const TgStoreDashboard   = lazy(() => import('./pages/tg-store/TgStoreDashboard'));
+const TgStoreCatalog     = lazy(() => import('./pages/tg-store/TgStoreCatalog'));
+const TgStoreCart        = lazy(() => import('./pages/tg-store/TgStoreCart'));
+const TgStoreOrders      = lazy(() => import('./pages/tg-store/TgStoreOrders'));
+const TgStoreOrderDetail = lazy(() => import('./pages/tg-store/TgStoreOrderDetail'));
+const TgStoreProfile     = lazy(() => import('./pages/tg-store/TgStoreProfile'));
 
 // Store
 const StoreDashboard        = lazy(() => import('./pages/store/StoreDashboard'));
@@ -98,8 +109,10 @@ function App() {
           <Route path="/" element={<LandingPage />} />
 
           {/* ── PUBLIC ── */}
-          <Route path="/login"    element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login"           element={<LoginPage />} />
+          <Route path="/register"        element={<RegisterPage />} />
+          <Route path="/driver/tg-auth"  element={<TelegramDriverAuth />} />
+          <Route path="/store/tg-auth"   element={<TgStoreAuth />} />
 
           {/* ── ADMIN ── */}
           <Route path="/admin" element={<ProtectedRoute roles={['ADMIN']}><AdminLayout /></ProtectedRoute>}>
@@ -151,6 +164,20 @@ function App() {
             <Route path="/store/finance"          element={<ProtectedRoute roles={['CLIENT','STORE','ADMIN']}><FinancePage /></ProtectedRoute>} />
             <Route path="/store/chat"             element={<ProtectedRoute roles={['CLIENT','STORE','ADMIN']}><StoreChatPage /></ProtectedRoute>} />
             <Route path="/store/cart"             element={<ProtectedRoute roles={['CLIENT','STORE','ADMIN']}><CartPage /></ProtectedRoute>} />
+          </Route>
+
+          {/* ── TELEGRAM STORE MINI APP ── */}
+          <Route path="/store/tg" element={
+            <ProtectedRoute roles={['CLIENT', 'STORE']}>
+              <TgStoreLayout />
+            </ProtectedRoute>
+          }>
+            <Route index                element={<TgStoreDashboard />} />
+            <Route path="catalog"       element={<TgStoreCatalog />} />
+            <Route path="cart"          element={<TgStoreCart />} />
+            <Route path="orders"        element={<TgStoreOrders />} />
+            <Route path="orders/:id"    element={<TgStoreOrderDetail />} />
+            <Route path="profile"       element={<TgStoreProfile />} />
           </Route>
 
           {/* 404 */}

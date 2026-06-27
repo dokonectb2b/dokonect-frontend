@@ -50,3 +50,15 @@ export const verifyRegisterFn = async (data: RegisterPayload & { code: string })
   const response = await api.post('/api/auth/verify-register', data);
   return response.data;
 };
+
+// TELEGRAM MINI APP — DRIVER AUTH
+export const telegramDriverAuthFn = async (data: { initData: string; phone?: string }) => {
+  const response = await api.post('/api/auth/telegram-driver', data);
+  return response.data;
+};
+
+// TELEGRAM MINI APP — CLIENT AUTH
+export const telegramClientAuthFn = async (data: { initData: string; phone?: string }) => {
+  const response = await api.post('/api/auth/telegram-client', data);
+  return response.data;
+};

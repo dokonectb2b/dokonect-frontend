@@ -71,7 +71,7 @@ export const LoginPage: React.FC = () => {
 
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
-          <DokonectLogo size={52} className="text-white justify-center mb-3" />
+          <DokonectLogo size={52} onDark className="justify-center mb-3" />
           <p className="text-slate-400 text-sm font-medium mt-1">B2B Platformaning kelajagi</p>
         </div>
 

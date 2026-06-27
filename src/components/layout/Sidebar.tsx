@@ -2,12 +2,13 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LogOut, LayoutDashboard, Package, ClipboardList,
   BarChart3, MessageSquare, Truck,
-  Zap, Warehouse, Tag, Settings,
+  Warehouse, Tag, Settings,
   FolderOpen, DollarSign, Users,
   ChevronLeft, ChevronRight, ShoppingCart, CreditCard,
   Navigation,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
+import DokonectLogo from '../ui/DokonectLogo';
 
 const distributorMenu = [
   { to: '/distributor/dashboard',   icon: LayoutDashboard, label: 'Dashboard' },
@@ -68,29 +69,23 @@ const Sidebar = ({ onClose, collapsed = false, onToggleCollapse }: SidebarProps)
       style={{ width: collapsed ? 64 : 256 }}
     >
       {/* Brand */}
-      <div className={`border-b border-white/5 flex items-center gap-3 ${collapsed ? 'px-3 py-5 justify-center' : 'px-6 py-6 justify-between'}`}>
-        <div
-          className="flex items-center gap-3 group cursor-pointer min-w-0"
-          onClick={() => navigate('/')}
-        >
-          <div className="w-10 h-10 shrink-0 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/30 group-hover:scale-110 transition-transform">
-            <Zap className="w-5 h-5 text-white fill-white" />
+      <div className={`border-b border-white/5 flex items-center ${collapsed ? 'px-3 py-5 justify-center' : 'px-5 py-4 justify-between'}`}>
+        {collapsed ? (
+          <div className="cursor-pointer group" onClick={() => navigate('/')}>
+            <DokonectLogo size={34} variant="icon" onDark className="group-hover:scale-110 transition-transform" />
           </div>
-          {!collapsed && (
-            <div className="flex flex-col min-w-0 overflow-hidden">
-              <span className="text-white font-black text-xl tracking-tighter leading-none whitespace-nowrap">
-                Doko<span className="text-indigo-400 font-bold">nect</span>
-              </span>
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1 whitespace-nowrap">
-                {user?.role === 'DRIVER'
-                  ? 'Haydovchi'
-                  : user?.role === 'CLIENT' || user?.role === 'STORE'
-                  ? "Do'kon egasi"
-                  : 'Platforma v3.0'}
-              </span>
-            </div>
-          )}
-        </div>
+        ) : (
+          <div className="flex flex-col gap-0.5 cursor-pointer group min-w-0" onClick={() => navigate('/')}>
+            <DokonectLogo size={34} onDark className="group-hover:opacity-90 transition-opacity" />
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest pl-0.5">
+              {user?.role === 'DRIVER'
+                ? 'Haydovchi'
+                : user?.role === 'CLIENT' || user?.role === 'STORE'
+                ? "Do'kon egasi"
+                : 'Distribyutor platformasi'}
+            </span>
+          </div>
+        )}
 
         {onToggleCollapse && !collapsed && (
           <button
