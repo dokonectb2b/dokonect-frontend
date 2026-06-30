@@ -6,8 +6,9 @@ import { z } from 'zod';
 import { useMutation } from '@tanstack/react-query';
 import {
   Mail, Lock, Store, Briefcase, User, Phone, MapPin,
-  ArrowRight, Zap, Eye, EyeOff, AlertCircle, RotateCcw, ExternalLink,
+  ArrowRight, Eye, EyeOff, AlertCircle, RotateCcw, ExternalLink,
 } from 'lucide-react';
+import DokonectLogo from '../../components/ui/DokonectLogo';
 import { motion, AnimatePresence } from 'framer-motion';
 import { sendOtpFn, verifyRegisterFn } from '../../api/auth.api';
 import { useAuthStore } from '../../store/authStore';
@@ -145,13 +146,8 @@ const RegisterPage = () => {
       <div className="w-full max-w-lg">
 
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-8 h-8 bg-violet-600 rounded-lg flex items-center justify-center shadow-lg shadow-violet-500/30">
-            <Zap className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-bold text-slate-800 text-lg">
-            Doko<span className="text-violet-600">nect</span>
-          </span>
+        <div className="flex justify-center mb-8">
+          <DokonectLogo size={38} />
         </div>
 
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/50 p-8">

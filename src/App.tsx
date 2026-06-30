@@ -56,6 +56,13 @@ const TgStoreOrders      = lazy(() => import('./pages/tg-store/TgStoreOrders'));
 const TgStoreOrderDetail = lazy(() => import('./pages/tg-store/TgStoreOrderDetail'));
 const TgStoreProfile     = lazy(() => import('./pages/tg-store/TgStoreProfile'));
 
+// Telegram Driver (Mini App)
+const TgDriverLayout   = lazy(() => import('./pages/tg-driver/TgDriverLayout'));
+const TgDriverHome     = lazy(() => import('./pages/tg-driver/TgDriverHome'));
+const TgDriverDelivery = lazy(() => import('./pages/tg-driver/TgDriverDelivery'));
+const TgDriverEarnings = lazy(() => import('./pages/tg-driver/TgDriverEarnings'));
+const TgDriverProfile  = lazy(() => import('./pages/tg-driver/TgDriverProfile'));
+
 // Store
 const StoreDashboard        = lazy(() => import('./pages/store/StoreDashboard'));
 const StoreOrdersPage       = lazy(() => import('./pages/store/StoreOrdersPage'));
@@ -178,6 +185,18 @@ function App() {
             <Route path="orders"        element={<TgStoreOrders />} />
             <Route path="orders/:id"    element={<TgStoreOrderDetail />} />
             <Route path="profile"       element={<TgStoreProfile />} />
+          </Route>
+
+          {/* ── TELEGRAM DRIVER MINI APP ── */}
+          <Route path="/driver/tg" element={
+            <ProtectedRoute roles={['DRIVER']}>
+              <TgDriverLayout />
+            </ProtectedRoute>
+          }>
+            <Route index                      element={<TgDriverHome />} />
+            <Route path="delivery/:orderId"   element={<TgDriverDelivery />} />
+            <Route path="earnings"            element={<TgDriverEarnings />} />
+            <Route path="profile"             element={<TgDriverProfile />} />
           </Route>
 
           {/* 404 */}

@@ -57,7 +57,7 @@ export default function TelegramDriverAuth() {
 
       const { user, accessToken, refreshToken } = res.data;
       setAuth(user, accessToken, refreshToken);
-      navigate('/driver/dashboard', { replace: true });
+      navigate('/driver/tg', { replace: true });
     } catch (err: any) {
       setState('error');
       setErrMsg(err?.response?.data?.message || 'Kirish xatosi yuz berdi');
