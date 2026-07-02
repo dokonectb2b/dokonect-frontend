@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Package, DollarSign, Navigation } from 'lucide-react';
+import { Package, DollarSign, Navigation, History, BarChart3 } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -10,7 +10,6 @@ import {
   updateDriverStatusFn,
   updateDriverLocationFn,
   acceptDriverOrderFn,
-  updateDriverOrderStatusFn,
 } from '../../api/driver.api';
 import { DriverStatusToggle } from '../../components/driver/DriverStatusToggle';
 import { OrderAcceptCard } from '../../components/driver/OrderAcceptCard';
@@ -47,15 +46,6 @@ export default function TgDriverHome() {
     onSuccess: () => {
       toast.success('Buyurtma qabul qilindi!');
       setIncomingOrder(null);
-      queryClient.invalidateQueries({ queryKey: ['tg-driver-home'] });
-    },
-    onError: (e: any) => toast.error(e.response?.data?.message || 'Xatolik'),
-  });
-
-  const { mutate: markDelivered } = useMutation({
-    mutationFn: (orderId: string) => updateDriverOrderStatusFn({ orderId, status: 'DELIVERED' }),
-    onSuccess: () => {
-      toast.success('Yetkazish tasdiqlandi! 🎉');
       queryClient.invalidateQueries({ queryKey: ['tg-driver-home'] });
     },
     onError: (e: any) => toast.error(e.response?.data?.message || 'Xatolik'),
@@ -106,6 +96,14 @@ export default function TgDriverHome() {
           <div>
             <p className="text-slate-400 text-sm">Xush kelibsiz 👋</p>
             <h1 className="text-lg font-bold">{dashboard.driver?.user?.name || 'Haydovchi'}</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <button onClick={() => navigate('/driver/tg/orders')} className="p-2 bg-slate-700 rounded-full">
+              <History className="w-5 h-5" />
+            </button>
+            <button onClick={() => navigate('/driver/tg/statistics')} className="p-2 bg-slate-700 rounded-full">
+              <BarChart3 className="w-5 h-5" />
+            </button>
           </div>
         </div>
         <DriverStatusToggle isOnline={isOnline} onChange={updateStatus} disabled={statusPending} />
@@ -160,7 +158,7 @@ export default function TgDriverHome() {
             </div>
             {activeOrder.status === 'IN_TRANSIT' && (
               <button
-                onClick={() => markDelivered(activeOrder.id)}
+                onClick={() => navigate(`/driver/tg/delivery/${activeOrder.id}`)}
                 className="w-full mt-2 bg-green-500 text-white py-2.5 rounded-xl font-bold text-sm"
               >
                 Yetkazildi ✓

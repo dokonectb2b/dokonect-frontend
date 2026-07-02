@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Navigation, Check, Package, Truck, CheckCircle } from 'lucide-react';
+import { MapPin, Phone, Navigation, Check, Package, Truck, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
-import { updateDriverOrderStatusFn } from '../../api/driver.api';
-import api from '../../api/api';
+import { getDriverOrderFn, updateDriverOrderStatusFn } from '../../api/driver.api';
+import { uploadSingleFileFn } from '../../api/upload.api';
+import { PhotoProofCapture } from '../../components/driver/PhotoProofCapture';
+import { SignaturePad } from '../../components/driver/SignaturePad';
+import { ProblemReportModal } from '../../components/driver/ProblemReportModal';
 
 type Step = 'PICKED' | 'IN_TRANSIT' | 'DELIVERED';
 
@@ -15,27 +19,64 @@ const STEPS: Array<{ key: Step; label: string; icon: any }> = [
   { key: 'DELIVERED',  label: 'Yetkazildi',   icon: CheckCircle },
 ];
 
+async function dataUrlToFile(dataUrl: string, filename: string): Promise<File> {
+  const res  = await fetch(dataUrl);
+  const blob = await res.blob();
+  return new File([blob], filename, { type: blob.type });
+}
+
 export default function TgDriverDelivery() {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate     = useNavigate();
   const queryClient  = useQueryClient();
 
+  const [photoProofUrl, setPhotoProofUrl]       = useState<string | null>(null);
+  const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
+  const [problemModalOpen, setProblemModalOpen] = useState(false);
+
   const { data: orderRes, isLoading } = useQuery({
     queryKey: ['tg-driver-delivery', orderId],
-    queryFn: () => api.get(`/api/driver/orders/${orderId}`).then(r => r.data),
+    queryFn: () => getDriverOrderFn(orderId!),
     enabled: !!orderId,
   });
 
-  const { mutate: updateStatus } = useMutation({
-    mutationFn: (status: Step) => updateDriverOrderStatusFn({ orderId: orderId!, status }),
+  const { mutate: updateStatus, isPending: statusPending } = useMutation({
+    mutationFn: async (status: Step) => {
+      if (status !== 'DELIVERED') {
+        return updateDriverOrderStatusFn({ orderId: orderId!, status });
+      }
+      let signature: string | undefined;
+      if (signatureDataUrl) {
+        const file = await dataUrlToFile(signatureDataUrl, `signature-${orderId}.png`);
+        signature  = await uploadSingleFileFn(file);
+      }
+      return updateDriverOrderStatusFn({
+        orderId: orderId!,
+        status,
+        photoProof: photoProofUrl ?? undefined,
+        signature,
+      });
+    },
     onSuccess: (_, status) => {
       queryClient.invalidateQueries({ queryKey: ['tg-driver-delivery', orderId] });
       queryClient.invalidateQueries({ queryKey: ['tg-driver-home'] });
+      queryClient.invalidateQueries({ queryKey: ['tg-driver-orders'] });
       toast.success('Holat yangilandi');
       if (status === 'DELIVERED') {
         toast.success('Yetkazish yakunlandi! 🎉');
-        setTimeout(() => navigate('/driver/tg', { replace: true }), 2000);
+        setTimeout(() => navigate(`/driver/tg/orders/${orderId}/payment`, { replace: true }), 1500);
       }
+    },
+    onError: (e: any) => toast.error(e.response?.data?.message || 'Xatolik'),
+  });
+
+  const { mutate: submitProblem, isPending: problemPending } = useMutation({
+    mutationFn: (problemReport: string) =>
+      updateDriverOrderStatusFn({ orderId: orderId!, status: order.status, problemReport }),
+    onSuccess: () => {
+      toast.success('Muammo xabari yuborildi');
+      setProblemModalOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['tg-driver-delivery', orderId] });
     },
     onError: (e: any) => toast.error(e.response?.data?.message || 'Xatolik'),
   });
@@ -72,7 +113,9 @@ export default function TgDriverDelivery() {
     if (phone) window.location.href = `tel:${phone}`;
   };
 
-  const currentIndex = STEPS.findIndex((s) => s.key === order.status);
+  const currentIndex   = STEPS.findIndex((s) => s.key === order.status);
+  const awaitingProof  = order.status === 'IN_TRANSIT';
+  const proofComplete  = !!photoProofUrl && !!signatureDataUrl;
 
   return (
     <div className="text-white p-4 space-y-4">
@@ -114,13 +157,23 @@ export default function TgDriverDelivery() {
         </div>
       </div>
 
+      {/* Photo proof + signature, required before DELIVERED */}
+      {awaitingProof && (
+        <>
+          <PhotoProofCapture value={photoProofUrl} onChange={setPhotoProofUrl} />
+          <SignaturePad onChange={setSignatureDataUrl} />
+        </>
+      )}
+
       {/* Steps */}
       <div className="space-y-3">
         {STEPS.map((step, index) => {
           const Icon        = step.icon;
           const isCompleted = index < currentIndex;
           const isCurrent   = index === currentIndex;
-          const isDisabled  = index > currentIndex + 1 || index <= currentIndex - 1;
+          const isLastStep  = step.key === 'DELIVERED';
+          const isDisabled  = index > currentIndex + 1 || index <= currentIndex - 1
+            || statusPending || (isCurrent && isLastStep && !proofComplete);
 
           return (
             <motion.button
@@ -130,7 +183,7 @@ export default function TgDriverDelivery() {
               disabled={isDisabled || isCompleted}
               className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all ${
                 isCompleted ? 'bg-green-500 text-white'
-                : isCurrent ? 'bg-sky-500 text-white shadow-lg'
+                : isCurrent ? 'bg-sky-500 text-white shadow-lg disabled:opacity-50'
                 : 'bg-slate-800 text-slate-500'
               }`}
             >
@@ -139,12 +192,32 @@ export default function TgDriverDelivery() {
               </div>
               <div className="flex-1 text-left">
                 <p className="font-bold">{step.label}</p>
-                {isCurrent && <p className="text-xs opacity-80">Bosing va tasdiqlang</p>}
+                {isCurrent && (
+                  <p className="text-xs opacity-80">
+                    {isLastStep && !proofComplete ? 'Foto va imzo talab qilinadi' : 'Bosing va tasdiqlang'}
+                  </p>
+                )}
               </div>
             </motion.button>
           );
         })}
       </div>
+
+      {/* Problem report */}
+      <button
+        onClick={() => setProblemModalOpen(true)}
+        className="w-full flex items-center justify-center gap-2 py-3 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition-colors"
+      >
+        <AlertTriangle className="w-5 h-5" />
+        Muammo xabari
+      </button>
+
+      <ProblemReportModal
+        isOpen={problemModalOpen}
+        onClose={() => setProblemModalOpen(false)}
+        onSubmit={(text) => submitProblem(text)}
+        isSubmitting={problemPending}
+      />
     </div>
   );
 }

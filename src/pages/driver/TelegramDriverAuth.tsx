@@ -25,8 +25,10 @@ declare global {
 type State = 'loading' | 'need_phone' | 'error';
 
 export default function TelegramDriverAuth() {
-  const [state, setState]   = useState<State>('loading');
-  const [errMsg, setErrMsg] = useState('');
+  const [state, setState]     = useState<State>('loading');
+  const [errMsg, setErrMsg]   = useState('');
+  const [phone, setPhone]     = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
   const setAuth  = useAuthStore(s => s.setAuth);
 
@@ -64,20 +66,12 @@ export default function TelegramDriverAuth() {
     }
   }
 
-  function requestPhone() {
+  async function submitPhone() {
     const tg = window.Telegram?.WebApp;
-    if (!tg) return;
-
-    tg.requestContact((granted) => {
-      if (!granted) {
-        setState('error');
-        setErrMsg('Telefon raqami taqdim etilmadi');
-        return;
-      }
-      const phone = tg.initDataUnsafe?.contact?.phone_number;
-      if (phone) authenticate(tg, phone);
-      else { setState('error'); setErrMsg('Telefon raqami topilmadi'); }
-    });
+    if (!tg || !phone.trim()) return;
+    setSubmitting(true);
+    await authenticate(tg, phone.trim());
+    setSubmitting(false);
   }
 
   // ─── Loading ────────────────────────────────────────────────────────────────
@@ -101,14 +95,22 @@ export default function TelegramDriverAuth() {
         <div className="text-center max-w-xs w-full">
           <div className="text-6xl mb-5">🚗</div>
           <h1 className="text-xl font-bold text-gray-900 mb-2">Dokonect Driver</h1>
-          <p className="text-gray-500 text-sm mb-8">
-            Kirish uchun telefon raqamingizni ulashing
+          <p className="text-gray-500 text-sm mb-6">
+            Kirish uchun telefon raqamingizni kiriting
           </p>
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="+998901234567"
+            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-base mb-3 outline-none focus:border-blue-500"
+          />
           <button
-            onClick={requestPhone}
-            className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold py-3 px-4 rounded-xl transition-colors"
+            onClick={submitPhone}
+            disabled={submitting || !phone.trim()}
+            className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 text-white font-semibold py-3 px-4 rounded-xl transition-colors"
           >
-            📱 Telefon raqamni ulashish
+            {submitting ? 'Tekshirilmoqda...' : 'Kirish'}
           </button>
           <p className="text-xs text-gray-400 mt-4">
             Raqamingiz faqat tizimga kirish uchun ishlatiladi

@@ -57,11 +57,15 @@ const TgStoreOrderDetail = lazy(() => import('./pages/tg-store/TgStoreOrderDetai
 const TgStoreProfile     = lazy(() => import('./pages/tg-store/TgStoreProfile'));
 
 // Telegram Driver (Mini App)
-const TgDriverLayout   = lazy(() => import('./pages/tg-driver/TgDriverLayout'));
-const TgDriverHome     = lazy(() => import('./pages/tg-driver/TgDriverHome'));
-const TgDriverDelivery = lazy(() => import('./pages/tg-driver/TgDriverDelivery'));
-const TgDriverEarnings = lazy(() => import('./pages/tg-driver/TgDriverEarnings'));
-const TgDriverProfile  = lazy(() => import('./pages/tg-driver/TgDriverProfile'));
+const TgDriverLayout         = lazy(() => import('./pages/tg-driver/TgDriverLayout'));
+const TgDriverHome           = lazy(() => import('./pages/tg-driver/TgDriverHome'));
+const TgDriverDelivery       = lazy(() => import('./pages/tg-driver/TgDriverDelivery'));
+const TgDriverEarnings       = lazy(() => import('./pages/tg-driver/TgDriverEarnings'));
+const TgDriverProfile        = lazy(() => import('./pages/tg-driver/TgDriverProfile'));
+const TgDriverOrderHistory   = lazy(() => import('./pages/tg-driver/TgDriverOrderHistory'));
+const TgDriverOrderDetail    = lazy(() => import('./pages/tg-driver/TgDriverOrderDetail'));
+const TgDriverPaymentCollect = lazy(() => import('./pages/tg-driver/TgDriverPaymentCollect'));
+const TgDriverStatistics     = lazy(() => import('./pages/tg-driver/TgDriverStatistics'));
 
 // Store
 const StoreDashboard        = lazy(() => import('./pages/store/StoreDashboard'));
@@ -193,10 +197,14 @@ function App() {
               <TgDriverLayout />
             </ProtectedRoute>
           }>
-            <Route index                      element={<TgDriverHome />} />
-            <Route path="delivery/:orderId"   element={<TgDriverDelivery />} />
-            <Route path="earnings"            element={<TgDriverEarnings />} />
-            <Route path="profile"             element={<TgDriverProfile />} />
+            <Route index                           element={<TgDriverHome />} />
+            <Route path="delivery/:orderId"        element={<TgDriverDelivery />} />
+            <Route path="earnings"                 element={<TgDriverEarnings />} />
+            <Route path="profile"                  element={<TgDriverProfile />} />
+            <Route path="orders"                   element={<TgDriverOrderHistory />} />
+            <Route path="orders/:orderId"          element={<TgDriverOrderDetail />} />
+            <Route path="orders/:orderId/payment"  element={<TgDriverPaymentCollect />} />
+            <Route path="statistics"               element={<TgDriverStatistics />} />
           </Route>
 
           {/* 404 */}
