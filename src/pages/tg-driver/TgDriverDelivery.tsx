@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Phone, Navigation, Check, Package, Truck, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -10,6 +10,7 @@ import { uploadSingleFileFn } from '../../api/upload.api';
 import { PhotoProofCapture } from '../../components/driver/PhotoProofCapture';
 import { SignaturePad } from '../../components/driver/SignaturePad';
 import { ProblemReportModal } from '../../components/driver/ProblemReportModal';
+import { YandexMap } from '../../components/driver/YandexMap';
 
 type Step = 'PICKED' | 'IN_TRANSIT' | 'DELIVERED';
 
@@ -33,6 +34,17 @@ export default function TgDriverDelivery() {
   const [photoProofUrl, setPhotoProofUrl]       = useState<string | null>(null);
   const [signatureDataUrl, setSignatureDataUrl] = useState<string | null>(null);
   const [problemModalOpen, setProblemModalOpen] = useState(false);
+  const [driverCoords, setDriverCoords]         = useState<[number, number] | null>(null);
+
+  // Haydovchining joriy joylashuvi (marshrut chizish uchun)
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setDriverCoords([pos.coords.latitude, pos.coords.longitude]),
+      () => setDriverCoords(null),
+      { enableHighAccuracy: true, timeout: 8000 },
+    );
+  }, []);
 
   const { data: orderRes, isLoading } = useQuery({
     queryKey: ['tg-driver-delivery', orderId],
@@ -105,8 +117,13 @@ export default function TgDriverDelivery() {
     ? order.deliveryAddress?.street || order.deliveryAddress?.address || ''
     : order.deliveryAddress || '';
 
-  const handleNavigate = () =>
-    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(deliveryAddr)}`);
+  const handleNavigate = () => {
+    const dest = encodeURIComponent(deliveryAddr);
+    const url = driverCoords
+      ? `https://yandex.uz/maps/?rtext=${driverCoords[0]},${driverCoords[1]}~${dest}&rtt=auto`
+      : `https://yandex.uz/maps/?text=${dest}`;
+    window.open(url);
+  };
 
   const handleCallClient = () => {
     const phone = order.client?.user?.phone;
@@ -140,9 +157,12 @@ export default function TgDriverDelivery() {
         </div>
         <button onClick={handleNavigate}
           className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 bg-sky-500/15 text-sky-300 rounded-xl text-sm font-semibold active:scale-95 transition-transform">
-          <Navigation className="w-4 h-4" /> Xaritada ochish
+          <Navigation className="w-4 h-4" /> Yandex'da ochish
         </button>
       </div>
+
+      {/* Xarita — manzil + haydovchi + marshrut */}
+      {deliveryAddr && <YandexMap address={deliveryAddr} driverCoords={driverCoords} />}
 
       {/* Items */}
       <div className="tg-glass rounded-2xl p-4">
