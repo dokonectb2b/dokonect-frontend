@@ -16,9 +16,12 @@ export default function TgDriverLayout() {
   return (
     <div className="tg-driver-root flex flex-col min-h-screen max-w-[430px] mx-auto">
       {/* Page content */}
-      <main className="flex-1 overflow-y-auto pb-[92px]">
+      <main className="flex-1 overflow-y-auto pb-[104px]">
         <Outlet />
       </main>
+
+      {/* Nav ostidagi kontentni yashiruvchi gradient scrim */}
+      <div className="tg-nav-scrim fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] h-[104px] z-40 pointer-events-none" />
 
       {/* Bottom navigation — floating glass */}
       <nav className="fixed bottom-3 left-1/2 -translate-x-1/2 w-[calc(100%-24px)] max-w-[406px] tg-nav rounded-[22px] z-50 overflow-hidden">
