@@ -11,9 +11,10 @@ interface DriverFormData {
   vehicleType: string;
   plateNumber: string;
   password: string;
+  commission: string;
 }
 
-const emptyForm: DriverFormData = { name: '', phone: '', vehicleType: 'Sedan', password: '', plateNumber: '' };
+const emptyForm: DriverFormData = { name: '', phone: '', vehicleType: 'Sedan', password: '', plateNumber: '', commission: '' };
 
 const DriversPage = () => {
   const queryClient = useQueryClient();
@@ -67,6 +68,7 @@ const DriversPage = () => {
       vehicleType: driver.vehicleType   || '',
       plateNumber: driver.vehicleNumber || driver.plateNumber || '',
       password:    '',
+      commission:  driver.commission != null ? String(driver.commission) : '',
     });
     setShowModal(true);
   };
@@ -215,6 +217,25 @@ const DriversPage = () => {
                   />
                 </div>
               ))}
+
+              {/* Shaxsiy komissiya foizi */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-600 mb-1.5">Shaxsiy komissiya (%)</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step="0.5"
+                    value={form.commission}
+                    onChange={(e) => setForm((prev) => ({ ...prev, commission: e.target.value }))}
+                    placeholder="Bo'sh = umumiy foiz"
+                    className="w-full border border-slate-200 rounded-xl px-4 py-2.5 pr-8 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-400"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-semibold">%</span>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-1">Bo'sh qoldirilsa — distribyutor umumiy foizi qo'llaniladi</p>
+              </div>
             </div>
             <div className="flex gap-3 p-6 pt-0">
               <button onClick={() => setShowModal(false)}
