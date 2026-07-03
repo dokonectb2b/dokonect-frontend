@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../api/api';   // ← to'g'ri import
-import { User, Bell, Shield, Globe, Building2, Save, X, Mail, Phone, MapPin } from 'lucide-react';
+import { User, Bell, Shield, Globe, Building2, Save, X, Mail, Phone, MapPin, Truck } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { useAuthStore } from '../../store/authStore';
@@ -9,7 +9,9 @@ import toast from 'react-hot-toast';
 
 const SettingsPage = () => {
   const { user } = useAuthStore();
+  const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'security'>('profile');
+  const [commission, setCommission] = useState('10');
 
   const { data: profileRes, isLoading } = useQuery({
     queryKey: ['distributor-profile'],
@@ -19,6 +21,21 @@ const SettingsPage = () => {
   });
 
   const profile = profileRes || {};
+
+  // Profil yuklangач komissiyani to'ldirish
+  useEffect(() => {
+    const c = profile?.distributor?.driverCommission;
+    if (c !== undefined && c !== null) setCommission(String(c));
+  }, [profile?.distributor?.driverCommission]);
+
+  const { mutate: saveCommission, isPending: savingCommission } = useMutation({
+    mutationFn: () => api.patch('/api/distributor/profile', { driverCommission: Number(commission) }),
+    onSuccess: () => {
+      toast.success('Komissiya saqlandi!');
+      queryClient.invalidateQueries({ queryKey: ['distributor-profile'] });
+    },
+    onError: (e: any) => toast.error(e?.response?.data?.message || 'Xatolik'),
+  });
 
   if (isLoading) return (
     <div className="flex items-center justify-center min-h-[60vh]">
@@ -94,6 +111,40 @@ const SettingsPage = () => {
                       </select>
                     </div>
                   </div>
+                </div>
+              </section>
+
+              <section className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                <h3 className="text-lg font-bold text-slate-900 mb-2 flex items-center gap-2 uppercase tracking-tighter">
+                  <Truck className="w-5 h-5 text-sky-500" /> Haydovchi Komissiyasi
+                </h3>
+                <p className="text-sm text-slate-500 mb-5">
+                  Har bir yetkazilgan buyurtma summasidan haydovchiga to'lanadigan foiz.
+                  Masalan 10% — 20 000 so'mlik buyurtmada haydovchi 2 000 so'm oladi.
+                </p>
+                <div className="flex items-end gap-3 max-w-sm">
+                  <div className="flex-1">
+                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Komissiya foizi (%)</label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        step="0.5"
+                        value={commission}
+                        onChange={(e) => setCommission(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-sky-500 transition-all pr-8"
+                      />
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-semibold">%</span>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={() => saveCommission()}
+                    disabled={savingCommission || commission === '' || Number(commission) < 0 || Number(commission) > 100}
+                    className="bg-sky-500 text-white hover:bg-sky-600 font-bold px-5 py-2.5"
+                  >
+                    <Save className="w-4 h-4 mr-2" /> {savingCommission ? 'Saqlanmoqda...' : 'Saqlash'}
+                  </Button>
                 </div>
               </section>
             </div>
