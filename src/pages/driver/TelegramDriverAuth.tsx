@@ -78,10 +78,10 @@ export default function TelegramDriverAuth() {
 
   if (state === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="tg-driver-root min-h-screen flex items-center justify-center text-white">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
-          <p className="text-gray-500 text-sm">Yuklanmoqda...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-sky-400 mx-auto mb-4" />
+          <p className="text-slate-400 text-sm">Yuklanmoqda...</p>
         </div>
       </div>
     );
@@ -91,28 +91,32 @@ export default function TelegramDriverAuth() {
 
   if (state === 'need_phone') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-        <div className="text-center max-w-xs w-full">
-          <div className="text-6xl mb-5">🚗</div>
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Dokonect Driver</h1>
-          <p className="text-gray-500 text-sm mb-6">
+      <div className="tg-driver-root min-h-screen flex items-center justify-center p-6 text-white">
+        <div className="max-w-xs w-full">
+          <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center mx-auto mb-5 text-4xl shadow-xl shadow-sky-500/25">
+            🚗
+          </div>
+          <h1 className="text-2xl font-bold text-center tracking-tight mb-1">Dokonect Driver</h1>
+          <p className="text-slate-400 text-sm text-center mb-6">
             Kirish uchun telefon raqamingizni kiriting
           </p>
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            placeholder="+998901234567"
-            className="w-full border border-gray-300 rounded-xl px-4 py-3 text-base mb-3 outline-none focus:border-blue-500"
-          />
-          <button
-            onClick={submitPhone}
-            disabled={submitting || !phone.trim()}
-            className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-50 text-white font-semibold py-3 px-4 rounded-xl transition-colors"
-          >
-            {submitting ? 'Tekshirilmoqda...' : 'Kirish'}
-          </button>
-          <p className="text-xs text-gray-400 mt-4">
+          <div className="tg-glass rounded-3xl p-5">
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="+998901234567"
+              className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-base text-white placeholder:text-slate-500 mb-3 outline-none focus:border-sky-400/50 transition-colors"
+            />
+            <button
+              onClick={submitPhone}
+              disabled={submitting || !phone.trim()}
+              className="w-full bg-gradient-to-r from-sky-500 to-blue-600 disabled:opacity-50 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-sky-900/30 active:scale-[0.98] transition-all"
+            >
+              {submitting ? 'Tekshirilmoqda...' : 'Kirish'}
+            </button>
+          </div>
+          <p className="text-xs text-slate-500 text-center mt-4">
             Raqamingiz faqat tizimga kirish uchun ishlatiladi
           </p>
         </div>
@@ -123,14 +127,16 @@ export default function TelegramDriverAuth() {
   // ─── Error ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+    <div className="tg-driver-root min-h-screen flex items-center justify-center p-6 text-white">
       <div className="text-center max-w-xs w-full">
-        <div className="text-6xl mb-5">❌</div>
-        <h1 className="text-xl font-bold text-gray-900 mb-2">Xatolik</h1>
-        <p className="text-gray-500 text-sm mb-8">{errMsg}</p>
+        <div className="w-20 h-20 rounded-3xl bg-rose-500/15 flex items-center justify-center mx-auto mb-5 text-4xl">
+          ❌
+        </div>
+        <h1 className="text-xl font-bold tracking-tight mb-2">Xatolik</h1>
+        <p className="text-slate-400 text-sm mb-8">{errMsg}</p>
         <button
           onClick={() => window.Telegram?.WebApp.close()}
-          className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-xl transition-colors"
+          className="w-full bg-white/5 hover:bg-white/10 text-slate-200 font-semibold py-3.5 rounded-2xl transition-colors"
         >
           Yopish
         </button>

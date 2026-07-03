@@ -61,21 +61,21 @@ export default function TgDriverOrderDetail() {
   const needsPayment = order.status === 'DELIVERED' && order.paymentStatus !== 'PAID';
 
   return (
-    <div className="text-white p-4 space-y-4">
+    <div className="text-white p-4 pt-8 space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-bold">Buyurtma #{order.orderNumber}</h1>
-        <span className={`text-sm font-semibold ${s.color}`}>{s.label}</span>
+        <h1 className="text-lg font-bold tracking-tight">Buyurtma #{order.orderNumber}</h1>
+        <span className={`text-xs font-semibold px-3 py-1 rounded-full bg-white/5 ${s.color}`}>{s.label}</span>
       </div>
 
       {/* Customer info */}
-      <div className="bg-slate-800 rounded-xl p-4">
+      <div className="tg-glass rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
           <div>
             <p className="text-slate-400 text-xs">Mijoz</p>
             <p className="text-lg font-bold">{order.client?.user?.name}</p>
           </div>
-          <button onClick={handleCallClient} className="p-3 bg-green-500 rounded-full">
-            <Phone className="w-5 h-5" />
+          <button onClick={handleCallClient} className="p-3 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl shadow-lg shadow-emerald-500/25 active:scale-95 transition-transform">
+            <Phone className="w-5 h-5 text-white" />
           </button>
         </div>
         <div className="flex items-start gap-2 text-sm">
@@ -85,7 +85,7 @@ export default function TgDriverOrderDetail() {
       </div>
 
       {/* Items */}
-      <div className="bg-slate-800 rounded-xl p-4">
+      <div className="tg-glass rounded-2xl p-4">
         <p className="text-slate-400 text-xs mb-3">Mahsulotlar</p>
         <div className="space-y-2">
           {(order.items || []).map((item: any, i: number) => (
@@ -95,7 +95,7 @@ export default function TgDriverOrderDetail() {
             </div>
           ))}
         </div>
-        <div className="pt-3 mt-3 border-t border-slate-700 flex items-center justify-between font-bold text-sm">
+        <div className="pt-3 mt-3 border-t border-white/10 flex items-center justify-between font-bold text-sm">
           <span>Jami</span>
           <span>{(order.totalAmount || 0).toLocaleString('uz-UZ')} so'm</span>
         </div>
@@ -116,14 +116,14 @@ export default function TgDriverOrderDetail() {
             </div>
           )}
           {delivery.problemReport && (
-            <div className="bg-red-500/10 text-red-400 text-sm rounded-lg p-3">{delivery.problemReport}</div>
+            <div className="bg-rose-500/10 text-rose-400 text-sm rounded-xl p-3">{delivery.problemReport}</div>
           )}
         </div>
       )}
 
       {/* Payment info */}
       {order.status === 'DELIVERED' && (
-        <div className="bg-slate-800 rounded-xl p-4">
+        <div className="tg-glass rounded-2xl p-4">
           <p className="text-slate-400 text-xs mb-2">To'lov</p>
           <div className="flex items-center justify-between text-sm">
             <span className="text-slate-300">
@@ -139,7 +139,7 @@ export default function TgDriverOrderDetail() {
       {needsPayment && (
         <button
           onClick={() => navigate(`/driver/tg/orders/${orderId}/payment`)}
-          className="w-full py-3.5 rounded-2xl bg-green-500 text-white font-bold text-sm"
+          className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-400 to-green-500 text-emerald-950 font-bold text-sm shadow-lg shadow-emerald-900/30 active:scale-[0.98] transition-all"
         >
           To'lovni qabul qilish
         </button>

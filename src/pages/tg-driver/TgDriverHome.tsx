@@ -88,86 +88,104 @@ export default function TgDriverHome() {
     );
   }
 
+  const driverName = dashboard.driver?.user?.name || 'Haydovchi';
+  const initials = driverName.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
+
   return (
     <div className="text-white">
       {/* Header */}
-      <div className="bg-slate-800 px-4 pt-10 pb-5 border-b border-slate-700">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <p className="text-slate-400 text-sm">Xush kelibsiz 👋</p>
-            <h1 className="text-lg font-bold">{dashboard.driver?.user?.name || 'Haydovchi'}</h1>
+      <div className="px-4 pt-10 pb-5">
+        <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-500 flex items-center justify-center font-bold text-sm shadow-lg shadow-sky-500/20">
+              {initials}
+            </div>
+            <div>
+              <p className="text-slate-400 text-xs">Xush kelibsiz 👋</p>
+              <h1 className="text-base font-bold tracking-tight">{driverName}</h1>
+            </div>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={() => navigate('/driver/tg/orders')} className="p-2 bg-slate-700 rounded-full">
-              <History className="w-5 h-5" />
+            <button onClick={() => navigate('/driver/tg/orders')} className="p-2.5 tg-glass rounded-2xl active:scale-95 transition-transform">
+              <History className="w-5 h-5 text-slate-200" />
             </button>
-            <button onClick={() => navigate('/driver/tg/statistics')} className="p-2 bg-slate-700 rounded-full">
-              <BarChart3 className="w-5 h-5" />
+            <button onClick={() => navigate('/driver/tg/statistics')} className="p-2.5 tg-glass rounded-2xl active:scale-95 transition-transform">
+              <BarChart3 className="w-5 h-5 text-slate-200" />
             </button>
           </div>
         </div>
         <DriverStatusToggle isOnline={isOnline} onChange={updateStatus} disabled={statusPending} />
       </div>
 
-      <div className="p-4">
+      <div className="px-4 space-y-4">
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-            <div className="flex items-center gap-2 mb-1">
-              <Package className="w-4 h-4 text-sky-400" />
-              <p className="text-slate-400 text-xs">Bugun</p>
+        <div className="grid grid-cols-2 gap-3">
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+            className="tg-glass rounded-2xl p-4">
+            <div className="w-9 h-9 rounded-xl bg-sky-500/15 flex items-center justify-center mb-2.5">
+              <Package className="w-5 h-5 text-sky-400" />
             </div>
-            <p className="text-xl font-bold">{dashboard.todayOrders || 0} ta</p>
-          </div>
-          <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-            <div className="flex items-center gap-2 mb-1">
-              <DollarSign className="w-4 h-4 text-green-400" />
-              <p className="text-slate-400 text-xs">Daromad</p>
+            <p className="text-2xl font-bold tracking-tight">{dashboard.todayOrders || 0}</p>
+            <p className="text-slate-400 text-xs mt-0.5">Bugungi buyurtma</p>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+            className="tg-glass rounded-2xl p-4">
+            <div className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center mb-2.5">
+              <DollarSign className="w-5 h-5 text-emerald-400" />
             </div>
-            <p className="text-xl font-bold">{(dashboard.todayEarnings || 0).toLocaleString('uz-UZ')}</p>
-          </div>
+            <p className="text-2xl font-bold tracking-tight">{(dashboard.todayEarnings || 0).toLocaleString('uz-UZ')}</p>
+            <p className="text-slate-400 text-xs mt-0.5">Bugungi daromad</p>
+          </motion.div>
         </div>
 
         {/* Active order */}
         {activeOrder ? (
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-sky-500 to-blue-600 rounded-2xl p-5 shadow-xl">
-            <h2 className="text-lg font-bold mb-3">Faol yetkazish</h2>
-            <div className="space-y-2 mb-4 text-sm">
-              <p className="text-sky-100">Mijoz</p>
-              <p className="font-semibold -mt-1">{activeOrder.client?.user?.name}</p>
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+            className="relative overflow-hidden rounded-3xl p-5 shadow-2xl shadow-sky-900/40 bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-600">
+            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 blur-2xl" />
+            <div className="relative">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-2 h-2 rounded-full bg-white tg-live-dot" />
+                <h2 className="text-base font-bold tracking-tight">Faol yetkazish</h2>
+              </div>
+              <div className="mb-4">
+                <p className="text-sky-100 text-xs">Mijoz</p>
+                <p className="font-bold text-lg">{activeOrder.client?.user?.name}</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    const addr = typeof activeOrder.deliveryAddress === 'object'
+                      ? activeOrder.deliveryAddress?.street || activeOrder.deliveryAddress?.address || ''
+                      : activeOrder.deliveryAddress || '';
+                    handleNavigate(addr);
+                  }}
+                  className="flex-1 bg-white text-sky-600 py-3 rounded-2xl font-bold text-sm flex items-center justify-center gap-1.5 active:scale-95 transition-transform"
+                >
+                  <Navigation className="w-4 h-4" /> Navigatsiya
+                </button>
+                <button
+                  onClick={() => navigate(`/driver/tg/delivery/${activeOrder.id}`)}
+                  className="flex-1 bg-white/15 backdrop-blur text-white py-3 rounded-2xl font-bold text-sm active:scale-95 transition-transform"
+                >
+                  Batafsil
+                </button>
+              </div>
+              {activeOrder.status === 'IN_TRANSIT' && (
+                <button
+                  onClick={() => navigate(`/driver/tg/delivery/${activeOrder.id}`)}
+                  className="w-full mt-2 bg-emerald-400 text-emerald-950 py-3 rounded-2xl font-bold text-sm active:scale-95 transition-transform"
+                >
+                  Yetkazildi ✓
+                </button>
+              )}
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  const addr = typeof activeOrder.deliveryAddress === 'object'
-                    ? activeOrder.deliveryAddress?.street || activeOrder.deliveryAddress?.address || ''
-                    : activeOrder.deliveryAddress || '';
-                  handleNavigate(addr);
-                }}
-                className="flex-1 bg-white text-sky-600 py-2.5 rounded-xl font-bold text-sm flex items-center justify-center gap-1.5"
-              >
-                <Navigation className="w-4 h-4" /> Navigatsiya
-              </button>
-              <button
-                onClick={() => navigate(`/driver/tg/delivery/${activeOrder.id}`)}
-                className="flex-1 bg-white/20 text-white py-2.5 rounded-xl font-bold text-sm"
-              >
-                Batafsil
-              </button>
-            </div>
-            {activeOrder.status === 'IN_TRANSIT' && (
-              <button
-                onClick={() => navigate(`/driver/tg/delivery/${activeOrder.id}`)}
-                className="w-full mt-2 bg-green-500 text-white py-2.5 rounded-xl font-bold text-sm"
-              >
-                Yetkazildi ✓
-              </button>
-            )}
           </motion.div>
         ) : (
-          <div className="bg-slate-800 rounded-2xl p-10 text-center border border-slate-700">
-            <Package className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+          <div className="tg-glass rounded-3xl p-10 text-center">
+            <div className="w-16 h-16 rounded-full bg-white/[0.03] flex items-center justify-center mx-auto mb-4">
+              <Package className="w-8 h-8 text-slate-600" />
+            </div>
             <p className="text-slate-400 text-sm">
               {isOnline ? 'Buyurtma kutilmoqda...' : "Online bo'ling va buyurtma oling"}
             </p>

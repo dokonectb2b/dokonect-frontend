@@ -69,11 +69,11 @@ export function SignaturePad({ onChange }: SignaturePadProps) {
   }
 
   return (
-    <div className="bg-slate-800 rounded-xl p-4">
+    <div className="tg-glass rounded-2xl p-4">
       <div className="flex items-center justify-between mb-2">
         <p className="text-slate-400 text-xs">Mijoz imzosi</p>
         {hasSignature && (
-          <button onClick={handleClear} className="flex items-center gap-1 text-xs text-red-400">
+          <button onClick={handleClear} className="flex items-center gap-1 text-xs text-rose-400">
             <Eraser className="w-3.5 h-3.5" /> Tozalash
           </button>
         )}

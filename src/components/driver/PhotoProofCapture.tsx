@@ -32,7 +32,7 @@ export function PhotoProofCapture({ value, onChange }: PhotoProofCaptureProps) {
   }
 
   return (
-    <div className="bg-slate-800 rounded-xl p-4">
+    <div className="tg-glass rounded-2xl p-4">
       <p className="text-slate-400 text-xs mb-2">Yetkazish isboti (foto)</p>
       <input
         ref={inputRef}
@@ -56,7 +56,7 @@ export function PhotoProofCapture({ value, onChange }: PhotoProofCaptureProps) {
         <button
           onClick={() => inputRef.current?.click()}
           disabled={uploading}
-          className="w-28 h-28 rounded-lg border-2 border-dashed border-slate-600 flex flex-col items-center justify-center gap-1.5 text-slate-400"
+          className="w-28 h-28 rounded-2xl border-2 border-dashed border-white/15 bg-white/5 flex flex-col items-center justify-center gap-1.5 text-slate-400 active:scale-95 transition-transform"
         >
           {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
           <span className="text-[10px]">{uploading ? 'Yuklanmoqda...' : 'Surat olish'}</span>

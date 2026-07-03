@@ -118,16 +118,20 @@ export default function TgDriverDelivery() {
   const proofComplete  = !!photoProofUrl && !!signatureDataUrl;
 
   return (
-    <div className="text-white p-4 space-y-4">
+    <div className="text-white p-4 pt-8 space-y-4">
+      <div className="flex items-center gap-2 mb-1">
+        <h1 className="text-lg font-bold tracking-tight">Buyurtma #{order.orderNumber}</h1>
+      </div>
+
       {/* Customer info */}
-      <div className="bg-slate-800 rounded-xl p-4">
+      <div className="tg-glass rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
           <div>
             <p className="text-slate-400 text-xs">Mijoz</p>
             <p className="text-lg font-bold">{order.client?.user?.name}</p>
           </div>
-          <button onClick={handleCallClient} className="p-3 bg-green-500 rounded-full">
-            <Phone className="w-5 h-5" />
+          <button onClick={handleCallClient} className="p-3 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl shadow-lg shadow-emerald-500/25 active:scale-95 transition-transform">
+            <Phone className="w-5 h-5 text-white" />
           </button>
         </div>
         <div className="flex items-start gap-2 text-sm">
@@ -135,13 +139,13 @@ export default function TgDriverDelivery() {
           <p className="text-slate-300">{deliveryAddr}</p>
         </div>
         <button onClick={handleNavigate}
-          className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 bg-sky-500/20 text-sky-400 rounded-xl text-sm font-semibold">
+          className="w-full mt-3 flex items-center justify-center gap-2 py-2.5 bg-sky-500/15 text-sky-300 rounded-xl text-sm font-semibold active:scale-95 transition-transform">
           <Navigation className="w-4 h-4" /> Xaritada ochish
         </button>
       </div>
 
       {/* Items */}
-      <div className="bg-slate-800 rounded-xl p-4">
+      <div className="tg-glass rounded-2xl p-4">
         <p className="text-slate-400 text-xs mb-3">Mahsulotlar</p>
         <div className="space-y-2">
           {(order.items || []).map((item: any, i: number) => (
@@ -151,7 +155,7 @@ export default function TgDriverDelivery() {
             </div>
           ))}
         </div>
-        <div className="pt-3 mt-3 border-t border-slate-700 flex items-center justify-between font-bold text-sm">
+        <div className="pt-3 mt-3 border-t border-white/10 flex items-center justify-between font-bold text-sm">
           <span>Jami</span>
           <span>{(order.totalAmount || 0).toLocaleString('uz-UZ')} so'm</span>
         </div>
@@ -181,10 +185,10 @@ export default function TgDriverDelivery() {
               whileTap={!isDisabled ? { scale: 0.98 } : {}}
               onClick={() => !isDisabled && !isCompleted && updateStatus(step.key)}
               disabled={isDisabled || isCompleted}
-              className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all ${
-                isCompleted ? 'bg-green-500 text-white'
-                : isCurrent ? 'bg-sky-500 text-white shadow-lg disabled:opacity-50'
-                : 'bg-slate-800 text-slate-500'
+              className={`w-full flex items-center gap-3 p-4 rounded-2xl transition-all ${
+                isCompleted ? 'bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow-lg shadow-emerald-900/30'
+                : isCurrent ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-900/30 disabled:opacity-50'
+                : 'tg-glass-soft text-slate-500'
               }`}
             >
               <div className="w-10 h-10 rounded-full flex items-center justify-center bg-white/20">
@@ -206,7 +210,7 @@ export default function TgDriverDelivery() {
       {/* Problem report */}
       <button
         onClick={() => setProblemModalOpen(true)}
-        className="w-full flex items-center justify-center gap-2 py-3 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition-colors"
+        className="w-full flex items-center justify-center gap-2 py-3 bg-rose-500/15 text-rose-400 rounded-2xl hover:bg-rose-500/25 active:scale-[0.98] transition-all"
       >
         <AlertTriangle className="w-5 h-5" />
         Muammo xabari

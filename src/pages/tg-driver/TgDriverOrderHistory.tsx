@@ -92,8 +92,8 @@ export default function TgDriverOrderHistory() {
   return (
     <div className="text-white">
       <div className="px-4 pt-10 pb-4">
-        <h1 className="text-lg font-bold mb-3">Buyurtmalar tarixi</h1>
-        <form onSubmit={handleSearch} className="flex items-center gap-2 bg-slate-800 rounded-xl px-3 py-2.5">
+        <h1 className="text-lg font-bold mb-3 tracking-tight">Buyurtmalar tarixi</h1>
+        <form onSubmit={handleSearch} className="flex items-center gap-2 tg-glass rounded-2xl px-4 py-3">
           <Search className="w-4 h-4 text-slate-500 shrink-0" />
           <input
             value={search}
@@ -109,13 +109,13 @@ export default function TgDriverOrderHistory() {
       <div className="flex gap-2 px-4 pb-3">
         {PERIOD_TABS.map((t) => (
           <button key={t.key} onClick={() => { setPeriod(t.key); setPage(1); }}
-            className={`flex-1 py-2 rounded-lg text-xs font-medium ${period === t.key ? 'bg-sky-500 text-white' : 'bg-slate-800 text-slate-400'}`}>
+            className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-all active:scale-95 ${period === t.key ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-900/30' : 'bg-white/5 text-slate-400'}`}>
             {t.label}
           </button>
         ))}
       </div>
 
-      <div className="border-b border-slate-800">
+      <div className="border-b border-white/[0.06]">
         <div className="flex overflow-x-auto scrollbar-hide px-4 gap-1">
           {STATUS_TABS.map((t) => (
             <button key={t.key} onClick={() => { setStatus(t.key); setPage(1); }}
@@ -131,7 +131,7 @@ export default function TgDriverOrderHistory() {
       <div className="p-4">
         {isLoading ? (
           <div className="flex flex-col gap-3">
-            {[...Array(4)].map((_, i) => <div key={i} className="bg-slate-800 rounded-xl h-20 animate-pulse" />)}
+            {[...Array(4)].map((_, i) => <div key={i} className="tg-glass-soft rounded-2xl h-20 animate-pulse" />)}
           </div>
         ) : orders.length === 0 ? (
           <div className="text-center py-16 text-slate-500 text-sm">Bu bo'limda buyurtma yo'q</div>
@@ -141,7 +141,7 @@ export default function TgDriverOrderHistory() {
               const s = STATUS_LABEL[order.status] ?? { label: order.status, color: 'text-slate-400' };
               return (
                 <button key={order.id} onClick={() => goToOrder(order)}
-                  className="bg-slate-800 rounded-xl p-3.5 text-left flex items-center justify-between">
+                  className="tg-glass rounded-2xl p-3.5 text-left flex items-center justify-between active:scale-[0.98] transition-transform">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       <p className="font-bold text-sm">#{order.orderNumber}</p>
@@ -159,12 +159,12 @@ export default function TgDriverOrderHistory() {
         {totalPages > 1 && (
           <div className="flex items-center justify-center gap-3 pt-4 mt-2">
             <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}
-              className="flex items-center gap-1 px-3 py-2 bg-slate-800 rounded-lg text-xs text-slate-300 disabled:opacity-40">
+              className="flex items-center gap-1 px-3 py-2 bg-white/5 rounded-xl text-xs text-slate-300 disabled:opacity-40">
               <ChevronLeft className="w-3.5 h-3.5" /> Oldingi
             </button>
             <span className="text-xs text-slate-400">{page} / {totalPages}</span>
             <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-              className="flex items-center gap-1 px-3 py-2 bg-slate-800 rounded-lg text-xs text-slate-300 disabled:opacity-40">
+              className="flex items-center gap-1 px-3 py-2 bg-white/5 rounded-xl text-xs text-slate-300 disabled:opacity-40">
               Keyingi <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>

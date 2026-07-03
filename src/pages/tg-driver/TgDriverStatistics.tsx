@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { Package, CheckCircle, TrendingUp, Wallet } from 'lucide-react';
 
@@ -52,14 +53,27 @@ export default function TgDriverStatistics() {
   const collections = collectionsRes?.data || collectionsRes || {};
   const collectionList: any[] = collections.collections || [];
 
+  const KPIS = [
+    { icon: Package,     tint: 'sky',     label: 'Tayinlangan',       value: `${summary.totalAssigned ?? 0} ta` },
+    { icon: CheckCircle, tint: 'emerald', label: 'Yetkazilgan',       value: `${summary.totalDelivered ?? 0} ta` },
+    { icon: TrendingUp,  tint: 'amber',   label: 'Yetkazish darajasi', value: `${Math.round(summary.deliveryRate ?? 0)}%` },
+    { icon: Wallet,      tint: 'emerald', label: "Yig'ilgan",          value: (summary.totalCollected ?? 0).toLocaleString('uz-UZ') },
+  ] as const;
+
+  const tintMap: Record<string, string> = {
+    sky:     'bg-sky-500/15 text-sky-400',
+    emerald: 'bg-emerald-500/15 text-emerald-400',
+    amber:   'bg-amber-500/15 text-amber-400',
+  };
+
   return (
-    <div className="text-white p-4 space-y-4">
-      <h1 className="text-lg font-bold">Statistika</h1>
+    <div className="text-white p-4 pt-8 space-y-4">
+      <h1 className="text-lg font-bold tracking-tight">Statistika</h1>
 
       <div className="flex gap-2">
         {TABS.map((tab) => (
           <button key={tab.key} onClick={() => setPeriod(tab.key)}
-            className={`flex-1 py-2.5 rounded-xl text-sm font-medium transition-colors ${period === tab.key ? 'bg-sky-500 text-white' : 'bg-slate-800 text-slate-400'}`}>
+            className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all active:scale-95 ${period === tab.key ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-900/30' : 'bg-white/5 text-slate-400'}`}>
             {tab.label}
           </button>
         ))}
@@ -67,46 +81,31 @@ export default function TgDriverStatistics() {
 
       {/* KPI cards */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-          <div className="flex items-center gap-2 mb-1">
-            <Package className="w-4 h-4 text-sky-400" />
-            <p className="text-slate-400 text-xs">Tayinlangan</p>
-          </div>
-          <p className="text-xl font-bold">{summary.totalAssigned ?? 0} ta</p>
-        </div>
-        <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-          <div className="flex items-center gap-2 mb-1">
-            <CheckCircle className="w-4 h-4 text-green-400" />
-            <p className="text-slate-400 text-xs">Yetkazilgan</p>
-          </div>
-          <p className="text-xl font-bold">{summary.totalDelivered ?? 0} ta</p>
-        </div>
-        <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="w-4 h-4 text-amber-400" />
-            <p className="text-slate-400 text-xs">Yetkazish darajasi</p>
-          </div>
-          <p className="text-xl font-bold">{Math.round(summary.deliveryRate ?? 0)}%</p>
-        </div>
-        <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-          <div className="flex items-center gap-2 mb-1">
-            <Wallet className="w-4 h-4 text-green-400" />
-            <p className="text-slate-400 text-xs">Yig'ilgan</p>
-          </div>
-          <p className="text-xl font-bold">{(summary.totalCollected ?? 0).toLocaleString('uz-UZ')}</p>
-        </div>
+        {KPIS.map((k, i) => {
+          const Icon = k.icon;
+          return (
+            <motion.div key={k.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
+              className="tg-glass rounded-2xl p-4">
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-2.5 ${tintMap[k.tint]}`}>
+                <Icon className="w-5 h-5" />
+              </div>
+              <p className="text-xl font-bold tracking-tight">{k.value}</p>
+              <p className="text-slate-400 text-xs mt-0.5">{k.label}</p>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Payment method breakdown */}
-      <div className="bg-slate-800 rounded-xl p-4">
+      <div className="tg-glass rounded-2xl p-4">
         <p className="text-slate-400 text-xs mb-3">To'lov turlari bo'yicha</p>
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {PAYMENT_ROWS.map((row) => {
             const data = byPaymentMethod[row.key] || { count: 0, amount: 0 };
             return (
               <div key={row.key} className="flex items-center justify-between text-sm">
-                <span className="text-slate-300">{row.label} ({data.count})</span>
-                <span className="font-medium">{(data.amount || 0).toLocaleString('uz-UZ')} so'm</span>
+                <span className="text-slate-300">{row.label} <span className="text-slate-500">({data.count})</span></span>
+                <span className="font-semibold">{(data.amount || 0).toLocaleString('uz-UZ')} so'm</span>
               </div>
             );
           })}
@@ -114,17 +113,17 @@ export default function TgDriverStatistics() {
       </div>
 
       {/* Per-client collections */}
-      <div className="bg-slate-800 rounded-xl p-4">
+      <div className="tg-glass rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
           <p className="text-slate-400 text-xs">Mijozlar bo'yicha yig'imlar</p>
           <p className="text-xs text-slate-500">{collections.summary?.totalClients ?? 0} ta mijoz</p>
         </div>
         <div className="space-y-2.5">
           {collectionList.map((c: any) => (
-            <div key={c.clientId} className="bg-slate-700 rounded-lg p-3">
+            <div key={c.clientId} className="bg-white/5 rounded-xl p-3">
               <div className="flex items-center justify-between mb-1">
                 <p className="font-medium text-sm">{c.clientName || c.storeName}</p>
-                <p className="font-bold text-sm text-green-400">{(c.totalAmount || 0).toLocaleString('uz-UZ')}</p>
+                <p className="font-bold text-sm text-emerald-400">{(c.totalAmount || 0).toLocaleString('uz-UZ')}</p>
               </div>
               <p className="text-xs text-slate-400">{c.totalOrders} ta buyurtma</p>
             </div>

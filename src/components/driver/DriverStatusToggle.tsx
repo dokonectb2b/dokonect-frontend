@@ -13,31 +13,34 @@ export const DriverStatusToggle: React.FC<DriverStatusToggleProps> = ({
   disabled = false,
 }) => {
   return (
-    <div className="flex flex-col items-center gap-4 p-6 bg-slate-800 rounded-2xl">
-      <p className="text-lg font-semibold text-white">
-        {isOnline ? "You're Online" : "You're Offline"}
-      </p>
-      
+    <div className={`relative overflow-hidden flex items-center justify-between gap-4 p-4 rounded-3xl transition-colors tg-glass ${isOnline ? 'ring-1 ring-emerald-400/30' : ''}`}>
+      {isOnline && <div className="absolute -left-8 -top-8 w-32 h-32 rounded-full bg-emerald-500/20 blur-2xl" />}
+      <div className="relative">
+        <div className="flex items-center gap-2">
+          <span className={`w-2 h-2 rounded-full ${isOnline ? 'bg-emerald-400 tg-live-dot' : 'bg-slate-500'}`} />
+          <p className="text-base font-bold tracking-tight text-white">
+            {isOnline ? 'Onlaynsiz' : 'Oflaynsiz'}
+          </p>
+        </div>
+        <p className="text-xs text-slate-400 mt-0.5">
+          {isOnline ? 'Buyurtma qabul qilyapsiz' : 'Buyurtma olish uchun yoqing'}
+        </p>
+      </div>
+
       <motion.button
         whileTap={{ scale: disabled ? 1 : 0.95 }}
         onClick={() => !disabled && onChange(!isOnline)}
         disabled={disabled}
-        className={`relative w-32 h-16 rounded-full transition-colors ${
-          isOnline ? 'bg-green-500' : 'bg-slate-600'
+        className={`relative w-[68px] h-9 rounded-full transition-colors shrink-0 ${
+          isOnline ? 'bg-emerald-500' : 'bg-slate-700'
         } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
       >
         <motion.div
-          animate={{ x: isOnline ? 64 : 0 }}
+          animate={{ x: isOnline ? 34 : 0 }}
           transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-          className="absolute top-2 left-2 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center"
-        >
-          <div className={`w-6 h-6 rounded-full ${isOnline ? 'bg-green-500' : 'bg-slate-400'}`} />
-        </motion.div>
+          className="absolute top-1 left-1 w-7 h-7 bg-white rounded-full shadow-lg"
+        />
       </motion.button>
-
-      <p className="text-sm text-slate-400">
-        {isOnline ? 'Tap to go offline' : 'Tap to start receiving orders'}
-      </p>
     </div>
   );
 };

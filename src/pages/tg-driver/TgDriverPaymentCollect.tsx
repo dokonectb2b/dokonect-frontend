@@ -71,25 +71,28 @@ export default function TgDriverPaymentCollect() {
   const canSubmit  = numAmount > 0 && !isPending;
 
   return (
-    <div className="text-white p-4 space-y-4">
-      <div className="bg-gradient-to-br from-sky-500 to-blue-600 rounded-2xl p-5">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="p-2.5 bg-white/20 rounded-full"><Wallet className="w-5 h-5" /></div>
-          <div>
-            <p className="text-sky-100 text-xs">Buyurtma summasi</p>
-            <p className="text-2xl font-bold">{total.toLocaleString('uz-UZ')} so'm</p>
+    <div className="text-white p-4 pt-8 space-y-4">
+      <div className="relative overflow-hidden rounded-3xl p-5 shadow-2xl shadow-sky-900/40 bg-gradient-to-br from-sky-500 via-blue-600 to-indigo-600">
+        <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 blur-2xl" />
+        <div className="relative">
+          <div className="flex items-center gap-3 mb-1">
+            <div className="p-2.5 bg-white/15 backdrop-blur rounded-2xl"><Wallet className="w-5 h-5" /></div>
+            <div>
+              <p className="text-sky-100 text-xs">Buyurtma summasi</p>
+              <p className="text-2xl font-bold tracking-tight">{total.toLocaleString('uz-UZ')} so'm</p>
+            </div>
           </div>
+          <p className="text-sky-100/80 text-xs mt-1">Buyurtma #{order.orderNumber}</p>
         </div>
-        <p className="text-sky-100 text-xs mt-1">Buyurtma #{order.orderNumber}</p>
       </div>
 
-      <div className="bg-slate-800 rounded-xl p-4">
+      <div className="tg-glass rounded-2xl p-4">
         <p className="text-slate-400 text-xs mb-3">To'lov turi</p>
         <div className="grid grid-cols-2 gap-2">
           {METHODS.map((m) => (
             <button key={m.key} onClick={() => setMethod(m.key)}
-              className={`py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                method === m.key ? 'bg-sky-500 text-white' : 'bg-slate-700 text-slate-400'
+              className={`py-3 rounded-xl text-sm font-semibold transition-all active:scale-95 ${
+                method === m.key ? 'bg-gradient-to-r from-sky-500 to-blue-600 text-white shadow-lg shadow-sky-900/30' : 'bg-white/5 text-slate-400'
               }`}>
               {m.label}
             </button>
@@ -97,14 +100,14 @@ export default function TgDriverPaymentCollect() {
         </div>
       </div>
 
-      <div className="bg-slate-800 rounded-xl p-4">
+      <div className="tg-glass rounded-2xl p-4">
         <p className="text-slate-400 text-xs mb-2">Summasi</p>
         <input
           type="number"
           inputMode="numeric"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          className="w-full bg-slate-700 rounded-xl p-3 text-lg font-bold text-white outline-none"
+          className="w-full bg-white/5 border border-white/10 rounded-xl p-3.5 text-lg font-bold text-white outline-none focus:border-sky-400/50 transition-colors"
         />
         {isPartial && (
           <p className="text-xs text-amber-400 mt-2">Qisman to'lov — qolgan qismi qarzga yoziladi</p>
@@ -114,7 +117,7 @@ export default function TgDriverPaymentCollect() {
       <button
         onClick={() => collect()}
         disabled={!canSubmit}
-        className="w-full py-3.5 rounded-2xl bg-green-500 text-white font-bold text-sm disabled:opacity-40"
+        className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-400 to-green-500 text-emerald-950 font-bold text-sm shadow-lg shadow-emerald-900/30 active:scale-[0.98] transition-all disabled:opacity-40 disabled:shadow-none"
       >
         {isPending ? 'Yuborilmoqda...' : 'Tasdiqlash'}
       </button>

@@ -1,4 +1,5 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useSocket } from '../../hooks/useSocket';
 
 const NAV = [
@@ -13,24 +14,31 @@ export default function TgDriverLayout() {
   useSocket();
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-900 max-w-[430px] mx-auto">
+    <div className="tg-driver-root flex flex-col min-h-screen max-w-[430px] mx-auto">
       {/* Page content */}
-      <main className="flex-1 overflow-y-auto pb-[72px]">
+      <main className="flex-1 overflow-y-auto pb-[92px]">
         <Outlet />
       </main>
 
-      {/* Bottom navigation */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-slate-800 border-t border-slate-700 z-50">
-        <div className="flex">
+      {/* Bottom navigation — floating glass */}
+      <nav className="fixed bottom-3 left-1/2 -translate-x-1/2 w-[calc(100%-24px)] max-w-[406px] tg-nav rounded-[22px] z-50 overflow-hidden">
+        <div className="flex px-1.5 py-1.5">
           {NAV.map(({ path, label, icon: Icon }) => {
             const exact  = path === '/driver/tg';
             const active = exact ? location.pathname === path : location.pathname.startsWith(path);
             return (
               <button key={path} onClick={() => navigate(path)}
-                className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5"
+                className="relative flex-1 flex flex-col items-center justify-center py-2 gap-1 rounded-2xl"
               >
-                <Icon active={active} />
-                <span className={`text-[10px] font-medium ${active ? 'text-sky-400' : 'text-slate-500'}`}>
+                {active && (
+                  <motion.div
+                    layoutId="tg-nav-active"
+                    transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                    className="absolute inset-0 rounded-2xl bg-gradient-to-b from-sky-500/25 to-sky-500/5 border border-sky-400/20"
+                  />
+                )}
+                <span className="relative"><Icon active={active} /></span>
+                <span className={`relative text-[10px] font-semibold tracking-tight transition-colors ${active ? 'text-sky-300' : 'text-slate-500'}`}>
                   {label}
                 </span>
               </button>
