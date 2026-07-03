@@ -3,8 +3,8 @@ import { useCartStore } from '../../store/cart.store';
 import { SafeImage } from '../../components/ui/SafeImage';
 import { useMutation } from '@tanstack/react-query';
 import { createOrderFn } from '../../api/order.api';
-import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { LocationPicker, type PickedLocation } from '../../components/map/LocationPicker';
 import { Trash2, Plus, Minus, ShoppingCart, MapPin, ArrowRight, Package, Calendar } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 const CartPage = () => {
   const { items, removeItem, updateQuantity, clearCart, totalAmount } = useCartStore();
   const [address,      setAddress]      = useState('');
+  const [location,     setLocation]     = useState<PickedLocation | null>(null);
   const [note,         setNote]         = useState('');
   const [deliveryDate, setDeliveryDate] = useState('');
   const navigate = useNavigate();
@@ -40,9 +41,13 @@ const CartPage = () => {
       return toast.error("Faqat bitta distribyutordan buyurtma bering");
     }
 
+    const deliveryAddress = location
+      ? { address, street: address, lat: location.lat, lng: location.lng }
+      : address;
+
     mutate({
       distributorId:   items[0].distributorId,
-      deliveryAddress: address,
+      deliveryAddress,
       dueDate:         deliveryDate,
       notes:           note,
       items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
@@ -158,11 +163,25 @@ const CartPage = () => {
                 {/* Address */}
                 <Input
                   label="Yetkazib berish manzili"
-                  placeholder="Aniq manzilni kiriting"
+                  placeholder="Mo'ljal yoki manzil"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   leftIcon={<MapPin className="w-4 h-4" />}
                 />
+
+                {/* Location picker */}
+                <LocationPicker
+                  value={location}
+                  onChange={(loc) => {
+                    setLocation(loc);
+                    if (!address && loc.address) setAddress(loc.address);
+                  }}
+                />
+                {location && (
+                  <p className="text-xs text-brand-green font-medium">
+                    ✓ Joylashuv belgilandi — haydovchi aniq nuqtani ko'radi
+                  </p>
+                )}
 
                 {/* Date */}
                 <div className="space-y-1.5">
