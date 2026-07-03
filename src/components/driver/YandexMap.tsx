@@ -1,53 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
 import { Loader2, MapPinOff } from 'lucide-react';
-
-// Yandex Maps global ob'ekti
-declare global {
-  interface Window {
-    ymaps?: any;
-  }
-}
-
-const API_KEY = import.meta.env.VITE_YANDEX_MAPS_API_KEY as string | undefined;
-
-// Skriptni faqat bir marta yuklash uchun umumiy promise (singleton)
-let loaderPromise: Promise<any> | null = null;
-
-function loadYmaps(): Promise<any> {
-  if (window.ymaps?.ready) {
-    return new Promise((resolve) => window.ymaps.ready(() => resolve(window.ymaps)));
-  }
-  if (!loaderPromise) {
-    loaderPromise = new Promise((resolve, reject) => {
-      if (!API_KEY) { reject(new Error('no-key')); return; }
-      const script = document.createElement('script');
-      script.src = `https://api-maps.yandex.ru/2.1/?apikey=${API_KEY}&lang=ru_RU`;
-      script.async = true;
-      script.onload = () => window.ymaps.ready(() => resolve(window.ymaps));
-      script.onerror = () => reject(new Error('load-failed'));
-      document.head.appendChild(script);
-    });
-  }
-  return loaderPromise;
-}
+import { loadYmaps, YANDEX_KEY } from '../../lib/loadYmaps';
 
 interface YandexMapProps {
   address: string;
-  driverCoords?: [number, number] | null;
+  destCoords?: [number, number] | null;   // aniq manzil koordinatasi (bo'lsa geocoder ishlatilmaydi)
+  driverCoords?: [number, number] | null;  // haydovchining joriy joylashuvi
   className?: string;
 }
 
 // Toshkent markazi (fallback)
 const DEFAULT_CENTER: [number, number] = [41.311081, 69.240562];
 
-export function YandexMap({ address, driverCoords, className = '' }: YandexMapProps) {
+export function YandexMap({ address, destCoords, driverCoords, className = '' }: YandexMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<any>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'nokey'>('loading');
 
   useEffect(() => {
-    if (!API_KEY) { setStatus('nokey'); return; }
-    if (!address) { setStatus('error'); return; }
+    if (!YANDEX_KEY) { setStatus('nokey'); return; }
+    if (!address && !destCoords) { setStatus('error'); return; }
 
     let cancelled = false;
 
@@ -55,37 +27,52 @@ export function YandexMap({ address, driverCoords, className = '' }: YandexMapPr
       .then((ymaps) => {
         if (cancelled || !containerRef.current) return;
 
-        // Xaritani yaratish
         const map = new ymaps.Map(containerRef.current, {
-          center: driverCoords || DEFAULT_CENTER,
-          zoom: 13,
+          center: destCoords || driverCoords || DEFAULT_CENTER,
+          zoom: 14,
           controls: ['zoomControl'],
         }, { suppressMapOpenBlock: true });
         mapRef.current = map;
 
-        if (driverCoords) {
-          // Haydovchi → manzil marshruti (manzil matni ichida geokodlanadi)
-          const multiRoute = new ymaps.multiRouter.MultiRoute(
-            {
-              referencePoints: [driverCoords, address],
-              params: { routingMode: 'auto' },
-            },
-            {
-              boundsAutoApply: true,
-              wayPointStartIconColor: '#38BDF8',
-              wayPointFinishIconColor: '#22C55E',
-              routeActiveStrokeColor: '#38BDF8',
-              routeStrokeColor: '#38BDF8',
-            },
-          );
-          multiRoute.model.events.add('requestsuccess', () => { if (!cancelled) setStatus('ready'); });
-          multiRoute.model.events.add('requestfail', () => {
-            // Marshrut chiqmasa — hech bo'lmasa manzil pinini ko'rsatamiz
-            if (!cancelled) geocodeOnly(ymaps, map);
-          });
-          map.geoObjects.add(multiRoute);
+        // Manzil nuqtasini aniqlash: aniq koordinata bo'lsa o'shani, bo'lmasa geocoder
+        const withDest = (destLatLng: [number, number]) => {
+          if (driverCoords) {
+            const multiRoute = new ymaps.multiRouter.MultiRoute(
+              { referencePoints: [driverCoords, destLatLng], params: { routingMode: 'auto' } },
+              {
+                boundsAutoApply: true,
+                wayPointStartIconColor: '#38BDF8',
+                wayPointFinishIconColor: '#22C55E',
+                routeActiveStrokeColor: '#38BDF8',
+                routeStrokeColor: '#38BDF8',
+              },
+            );
+            multiRoute.model.events.add('requestsuccess', () => { if (!cancelled) setStatus('ready'); });
+            multiRoute.model.events.add('requestfail', () => { if (!cancelled) placeOnly(destLatLng); });
+            map.geoObjects.add(multiRoute);
+          } else {
+            placeOnly(destLatLng);
+          }
+        };
+
+        const placeOnly = (coords: [number, number]) => {
+          const placemark = new ymaps.Placemark(coords, { balloonContent: address }, { preset: 'islands#greenDotIcon' });
+          map.geoObjects.removeAll();
+          map.geoObjects.add(placemark);
+          map.setCenter(coords, 15);
+          if (!cancelled) setStatus('ready');
+        };
+
+        if (destCoords) {
+          withDest(destCoords);
         } else {
-          geocodeOnly(ymaps, map);
+          // Koordinata yo'q — manzil matnini geokodlaymiz
+          ymaps.geocode(address, { results: 1 }).then((res: any) => {
+            if (cancelled) return;
+            const obj = res.geoObjects.get(0);
+            if (!obj) { setStatus('error'); return; }
+            withDest(obj.geometry.getCoordinates());
+          }).catch(() => { if (!cancelled) setStatus('error'); });
         }
       })
       .catch((e) => {
@@ -93,28 +80,13 @@ export function YandexMap({ address, driverCoords, className = '' }: YandexMapPr
         setStatus(e?.message === 'no-key' ? 'nokey' : 'error');
       });
 
-    function geocodeOnly(ymaps: any, map: any) {
-      ymaps.geocode(address, { results: 1 }).then((res: any) => {
-        if (cancelled) return;
-        const obj = res.geoObjects.get(0);
-        if (!obj) { setStatus('error'); return; }
-        const coords = obj.geometry.getCoordinates();
-        const placemark = new ymaps.Placemark(coords, { balloonContent: address }, {
-          preset: 'islands#greenDotIcon',
-        });
-        map.geoObjects.add(placemark);
-        map.setCenter(coords, 15);
-        setStatus('ready');
-      }).catch(() => { if (!cancelled) setStatus('error'); });
-    }
-
     return () => {
       cancelled = true;
       if (mapRef.current) { mapRef.current.destroy(); mapRef.current = null; }
     };
-  }, [address, driverCoords]);
+  }, [address, destCoords, driverCoords]);
 
-  // Kalit yo'q bo'lsa — umuman ko'rsatmaymiz (Delivery'dagi "Yandex'da ochish" tugmasi qoladi)
+  // Kalit yo'q bo'lsa — umuman ko'rsatmaymiz
   if (status === 'nokey') return null;
 
   return (

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../../store/cart.store';
 import { createOrderFn } from '../../api/order.api';
 import { getClientDistributorsFn } from '../../api/client.api';
+import { LocationPicker, type PickedLocation } from '../../components/map/LocationPicker';
 import toast from 'react-hot-toast';
 
 const PRIMARY = '#22C55E';
@@ -21,6 +22,7 @@ export default function TgStoreCart() {
   const { items, removeItem, updateQuantity, clearCart, totalAmount } = useCartStore();
   const [payMethod, setPayMethod]   = useState('CASH');
   const [address, setAddress]       = useState('');
+  const [location, setLocation]     = useState<PickedLocation | null>(null);
   const [notes, setNotes]           = useState('');
   const [showForm, setShowForm]     = useState(false);
 
@@ -46,10 +48,19 @@ export default function TgStoreCart() {
 
   function handleOrder() {
     if (!items.length) return;
+    // Joylashuv tanlangan bo'lsa — koordinata bilan obyekt, aks holda oddiy matn
+    const deliveryAddress = location
+      ? {
+          address: address || location.address || '',
+          street:  address || location.address || '',
+          lat: location.lat,
+          lng: location.lng,
+        }
+      : (address || undefined);
     createMutation.mutate({
       distributorId,
       items: items.map(i => ({ productId: i.productId, variantId: i.variantId, quantity: i.quantity })),
-      deliveryAddress: address || undefined,
+      deliveryAddress,
       notes:           notes   || undefined,
       paymentMethod:   payMethod as any,
     });
@@ -133,8 +144,20 @@ export default function TgStoreCart() {
             <div>
               <label className="text-xs text-gray-500 font-medium mb-1 block">Yetkazib berish manzili</label>
               <input value={address} onChange={e => setAddress(e.target.value)}
-                placeholder="Manzilni kiriting..."
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-green-400" />
+                placeholder="Mo'ljal yoki manzil (masalan: Chilonzor 5, do'kon yonida)"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm outline-none focus:border-green-400 mb-2" />
+              <LocationPicker
+                value={location}
+                onChange={(loc) => {
+                  setLocation(loc);
+                  if (!address && loc.address) setAddress(loc.address);
+                }}
+              />
+              {location && (
+                <p className="text-[11px] text-green-600 font-medium mt-1.5">
+                  ✓ Joylashuv belgilandi — haydovchi aniq nuqtани ko'radi
+                </p>
+              )}
             </div>
 
             {/* Payment method */}

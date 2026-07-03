@@ -117,6 +117,13 @@ export default function TgDriverDelivery() {
     ? order.deliveryAddress?.street || order.deliveryAddress?.address || ''
     : order.deliveryAddress || '';
 
+  // Do'kon xaritada aniq nuqta tanlagan bo'lsa — koordinatani ishlatamiz
+  const da = order.deliveryAddress;
+  const destCoords: [number, number] | null =
+    da && typeof da === 'object' && typeof da.lat === 'number' && typeof da.lng === 'number'
+      ? [da.lat, da.lng]
+      : null;
+
   const handleNavigate = () => {
     const dest = encodeURIComponent(deliveryAddr);
     const url = driverCoords
@@ -162,7 +169,9 @@ export default function TgDriverDelivery() {
       </div>
 
       {/* Xarita — manzil + haydovchi + marshrut */}
-      {deliveryAddr && <YandexMap address={deliveryAddr} driverCoords={driverCoords} />}
+      {(deliveryAddr || destCoords) && (
+        <YandexMap address={deliveryAddr} destCoords={destCoords} driverCoords={driverCoords} />
+      )}
 
       {/* Items */}
       <div className="tg-glass rounded-2xl p-4">
