@@ -67,13 +67,13 @@ export default function TgStoreCart() {
   }
 
   if (items.length === 0) return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-6">
-      <div className="text-6xl mb-4">🛒</div>
-      <h2 className="font-bold text-gray-900 text-lg mb-1">Savat bo'sh</h2>
+    <div className="flex flex-col items-center justify-center min-h-screen px-6">
+      <div className="w-20 h-20 rounded-3xl bg-green-50 flex items-center justify-center mb-4 text-4xl">🛒</div>
+      <h2 className="font-bold text-gray-900 text-lg mb-1 tracking-tight">Savat bo'sh</h2>
       <p className="text-gray-500 text-sm text-center mb-6">Katalogdan mahsulot qo'shing</p>
       <button onClick={() => navigate('/store/tg/catalog')}
-        className="px-8 py-3 rounded-2xl text-white font-semibold text-sm"
-        style={{ background: PRIMARY }}>
+        className="px-8 py-3 rounded-2xl text-white font-semibold text-sm shadow-lg shadow-green-500/25 active:scale-95 transition-transform"
+        style={{ background: `linear-gradient(135deg, ${PRIMARY}, #16A34A)` }}>
         Katalogga o'tish
       </button>
     </div>
@@ -81,16 +81,17 @@ export default function TgStoreCart() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="px-4 pt-10 pb-4 text-white" style={{ background: `linear-gradient(135deg, ${PRIMARY}, #16A34A)` }}>
-        <h1 className="text-xl font-bold">Savat</h1>
-        <p className="text-sm opacity-80 mt-0.5">{items.length} ta mahsulot</p>
+      {/* Header — gradient hero */}
+      <div className="tgs-hero relative overflow-hidden px-4 pt-10 pb-6 text-white">
+        <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/15 blur-2xl" />
+        <h1 className="relative text-xl font-bold tracking-tight">Savat</h1>
+        <p className="relative text-sm opacity-80 mt-0.5">{items.length} ta mahsulot</p>
       </div>
 
       <div className="px-4 py-4 flex flex-col gap-3">
         {/* Cart items */}
         {items.map(item => (
-          <div key={item.productId} className="bg-white rounded-2xl p-4">
+          <div key={item.productId} className="tgs-card rounded-2xl p-4">
             <div className="flex gap-3">
               <div className="w-14 h-14 bg-gray-100 rounded-xl overflow-hidden shrink-0 flex items-center justify-center">
                 {item.imageUrl
@@ -122,22 +123,22 @@ export default function TgStoreCart() {
         ))}
 
         {/* Total */}
-        <div className="bg-white rounded-2xl p-4">
+        <div className="tgs-card rounded-2xl p-4">
           <div className="flex justify-between items-center">
             <span className="text-gray-500 text-sm">Jami summa</span>
-            <span className="font-bold text-lg" style={{ color: PRIMARY }}>{fmt(totalAmount())}</span>
+            <span className="font-bold text-lg tracking-tight" style={{ color: PRIMARY }}>{fmt(totalAmount())}</span>
           </div>
         </div>
 
         {/* Order form toggle */}
         {!showForm ? (
           <button onClick={() => setShowForm(true)}
-            className="w-full py-3.5 rounded-2xl text-white font-bold text-sm"
-            style={{ background: PRIMARY }}>
+            className="w-full py-4 rounded-2xl text-white font-bold text-sm shadow-lg shadow-green-500/25 active:scale-[0.98] transition-transform"
+            style={{ background: `linear-gradient(135deg, ${PRIMARY}, #16A34A)` }}>
             Buyurtma berish →
           </button>
         ) : (
-          <div className="bg-white rounded-2xl p-4 flex flex-col gap-4">
+          <div className="tgs-card rounded-2xl p-4 flex flex-col gap-4">
             <h3 className="font-bold text-gray-900 text-sm">Buyurtma ma'lumotlari</h3>
 
             {/* Delivery address */}
@@ -187,8 +188,8 @@ export default function TgStoreCart() {
             </div>
 
             <button onClick={handleOrder} disabled={createMutation.isPending}
-              className="w-full py-3.5 rounded-2xl text-white font-bold text-sm disabled:opacity-60"
-              style={{ background: PRIMARY }}>
+              className="w-full py-4 rounded-2xl text-white font-bold text-sm disabled:opacity-60 shadow-lg shadow-green-500/25 active:scale-[0.98] transition-transform"
+              style={{ background: `linear-gradient(135deg, ${PRIMARY}, #16A34A)` }}>
               {createMutation.isPending ? 'Yuklanmoqda...' : `✅ Buyurtma yuborish — ${fmt(totalAmount())}`}
             </button>
             <button onClick={() => setShowForm(false)}

@@ -44,22 +44,24 @@ export default function TgStoreOrders() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="px-4 pt-10 pb-4 text-white" style={{ background: `linear-gradient(135deg, ${PRIMARY}, #16A34A)` }}>
-        <h1 className="text-xl font-bold">Buyurtmalar</h1>
-        <p className="text-sm opacity-80 mt-0.5">{orders.length} ta buyurtma</p>
+      {/* Header — gradient hero */}
+      <div className="tgs-hero relative overflow-hidden px-4 pt-10 pb-6 text-white">
+        <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/15 blur-2xl" />
+        <h1 className="relative text-xl font-bold tracking-tight">Buyurtmalar</h1>
+        <p className="relative text-sm opacity-80 mt-0.5">{orders.length} ta buyurtma</p>
       </div>
 
-      {/* Status filter tabs */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="flex overflow-x-auto scrollbar-hide px-2">
+      {/* Status filter tabs — pill uslub */}
+      <div className="px-4 pt-3 pb-1">
+        <div className="flex overflow-x-auto scrollbar-hide gap-2">
           {TABS.map(t => (
             <button key={t.key} onClick={() => setActiveTab(t.key)}
-              className={`shrink-0 px-4 py-3 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap ${
+              className={`shrink-0 px-4 py-2 text-xs font-semibold rounded-full whitespace-nowrap transition-all active:scale-95 ${
                 activeTab === t.key
-                  ? 'border-green-500 text-green-500'
-                  : 'border-transparent text-gray-400'
-              }`}>
+                  ? 'text-white shadow-md shadow-green-500/25'
+                  : 'tgs-card text-gray-500'
+              }`}
+              style={activeTab === t.key ? { background: `linear-gradient(135deg, ${PRIMARY}, #16A34A)` } : undefined}>
               {t.label}
             </button>
           ))}
@@ -70,33 +72,33 @@ export default function TgStoreOrders() {
         {isLoading ? (
           <div className="flex flex-col gap-3">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl h-24 animate-pulse" />
+              <div key={i} className="tgs-card rounded-2xl h-24 animate-pulse" />
             ))}
           </div>
         ) : orders.length === 0 ? (
           <div className="text-center py-16">
-            <div className="text-5xl mb-4">📋</div>
+            <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3 text-2xl">📋</div>
             <p className="text-gray-700 font-semibold">Buyurtmalar yo'q</p>
             <p className="text-gray-400 text-sm mt-1">Bu kategoriyada hali buyurtma yo'q</p>
           </div>
         ) : (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2.5">
             {orders.map((order: any) => {
               const s = STATUS_LABEL[order.status] ?? { label: order.status, color: '#637381', bg: '#F9FAFB' };
               return (
                 <button key={order.id}
                   onClick={() => navigate(`/store/tg/orders/${order.id}`)}
-                  className="bg-white rounded-2xl p-4 text-left w-full active:bg-gray-50">
+                  className="tgs-card rounded-2xl p-4 text-left w-full active:scale-[0.98] transition-transform">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1">
                         <p className="font-bold text-gray-900 text-sm">#{order.orderNumber}</p>
-                        <span className="text-xs font-semibold px-2 py-0.5 rounded-md"
+                        <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full"
                           style={{ color: s.color, background: s.bg }}>
                           {s.label}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-500 truncate">
+                      <p className="text-xs text-gray-400 truncate">
                         {order.distributor?.companyName || 'Distribyutor'}
                       </p>
                       <p className="text-xs text-gray-400 mt-0.5">
@@ -104,7 +106,7 @@ export default function TgStoreOrders() {
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <p className="font-bold text-sm" style={{ color: PRIMARY }}>
+                      <p className="font-bold text-sm tracking-tight" style={{ color: PRIMARY }}>
                         {fmt(order.totalAmount)}
                       </p>
                       <p className="text-xs text-gray-400 mt-0.5">

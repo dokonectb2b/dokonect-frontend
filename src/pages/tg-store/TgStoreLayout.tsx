@@ -1,4 +1,5 @@
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useCartStore } from '../../store/cart.store';
 
 const NAV = [
@@ -15,33 +16,42 @@ export default function TgStoreLayout() {
   const cartCount = useCartStore(s => s.items.reduce((n, i) => n + i.quantity, 0));
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 max-w-[430px] mx-auto">
+    <div className="tgs-root flex flex-col min-h-screen max-w-[430px] mx-auto">
       {/* Page content */}
-      <main className="flex-1 overflow-y-auto pb-[72px]">
+      <main className="flex-1 overflow-y-auto pb-[96px]">
         <Outlet />
       </main>
 
-      {/* Bottom navigation */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-white border-t border-gray-100 z-50"
-        style={{ boxShadow: '0 -2px 12px rgba(0,0,0,0.06)' }}>
-        <div className="flex">
+      {/* Nav ostini yumshoq yashiruvchi gradient */}
+      <div className="tgs-nav-scrim fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] h-[96px] z-40 pointer-events-none" />
+
+      {/* Bottom navigation — floating glass */}
+      <nav className="fixed bottom-3 left-1/2 -translate-x-1/2 w-[calc(100%-24px)] max-w-[406px] tgs-nav rounded-[22px] z-50 overflow-hidden">
+        <div className="flex px-1 py-1.5">
           {NAV.map(({ path, label, icon: Icon, badge }) => {
             const exact  = path === '/store/tg';
             const active = exact ? location.pathname === path : location.pathname.startsWith(path);
             return (
               <button key={path} onClick={() => navigate(path)}
-                className="flex-1 flex flex-col items-center justify-center py-2 gap-0.5 relative"
+                className="relative flex-1 flex flex-col items-center justify-center py-2 gap-1 rounded-2xl"
               >
+                {active && (
+                  <motion.div
+                    layoutId="tgs-nav-active"
+                    transition={{ type: 'spring', stiffness: 500, damping: 40 }}
+                    className="absolute inset-0 rounded-2xl bg-gradient-to-b from-green-500/15 to-green-500/5 border border-green-500/20"
+                  />
+                )}
                 <div className="relative">
                   <Icon active={active} />
                   {badge && cartCount > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full text-white text-[10px] font-bold flex items-center justify-center"
+                    <span className="absolute -top-1.5 -right-1.5 min-w-4 h-4 px-0.5 rounded-full text-white text-[10px] font-bold flex items-center justify-center shadow-sm"
                       style={{ background: '#22C55E' }}>
                       {cartCount > 9 ? '9+' : cartCount}
                     </span>
                   )}
                 </div>
-                <span className={`text-[10px] font-medium ${active ? 'text-green-500' : 'text-gray-400'}`}>
+                <span className={`relative text-[10px] font-semibold tracking-tight transition-colors ${active ? 'text-green-600' : 'text-gray-400'}`}>
                   {label}
                 </span>
               </button>

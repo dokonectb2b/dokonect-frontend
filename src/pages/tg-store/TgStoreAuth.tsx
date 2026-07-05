@@ -58,7 +58,7 @@ export default function TgStoreAuth() {
   }
 
   if (state === 'loading') return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="tgs-root min-h-screen flex items-center justify-center">
       <div className="text-center">
         <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
         <p className="text-gray-500 text-sm">Yuklanmoqda...</p>
@@ -67,41 +67,44 @@ export default function TgStoreAuth() {
   );
 
   if (state === 'need_phone') return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
-      <div className="text-center max-w-xs w-full">
-        <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
-          <span className="text-4xl">🛒</span>
+    <div className="tgs-root min-h-screen flex items-center justify-center p-6">
+      <div className="max-w-xs w-full">
+        <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-5 text-4xl shadow-xl shadow-green-500/25"
+          style={{ background: 'linear-gradient(135deg, #22C55E, #16A34A)' }}>
+          🛒
         </div>
-        <h1 className="text-xl font-bold text-gray-900 mb-1">Dokonect</h1>
-        <p className="text-gray-500 text-sm mb-6">Kirish uchun telefon raqamingizni kiriting</p>
-        <input
-          type="tel"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder="+998901234567"
-          className="w-full border border-gray-300 rounded-xl px-4 py-3 text-base mb-3 outline-none focus:border-green-500"
-        />
-        <button
-          onClick={submitPhone}
-          disabled={submitting || !phone.trim()}
-          className="w-full py-3 rounded-2xl font-semibold text-white text-sm disabled:opacity-50"
-          style={{ background: '#22C55E' }}
-        >
-          {submitting ? 'Tekshirilmoqda...' : 'Kirish'}
-        </button>
-        <p className="text-xs text-gray-400 mt-4">Raqamingiz faqat tizimga kirish uchun ishlatiladi</p>
+        <h1 className="text-2xl font-bold text-gray-900 text-center tracking-tight mb-1">Dokonect</h1>
+        <p className="text-gray-500 text-sm text-center mb-6">Kirish uchun telefon raqamingizni kiriting</p>
+        <div className="tgs-card rounded-3xl p-5">
+          <input
+            type="tel"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="+998901234567"
+            className="w-full bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3.5 text-base mb-3 outline-none focus:border-green-400 transition-colors"
+          />
+          <button
+            onClick={submitPhone}
+            disabled={submitting || !phone.trim()}
+            className="w-full py-3.5 rounded-2xl font-bold text-white text-sm disabled:opacity-50 shadow-lg shadow-green-500/25 active:scale-[0.98] transition-transform"
+            style={{ background: 'linear-gradient(135deg, #22C55E, #16A34A)' }}
+          >
+            {submitting ? 'Tekshirilmoqda...' : 'Kirish'}
+          </button>
+        </div>
+        <p className="text-xs text-gray-400 text-center mt-4">Raqamingiz faqat tizimga kirish uchun ishlatiladi</p>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
+    <div className="tgs-root min-h-screen flex items-center justify-center p-6">
       <div className="text-center max-w-xs w-full">
-        <div className="text-5xl mb-4">❌</div>
-        <h1 className="text-xl font-bold text-gray-900 mb-2">Xatolik</h1>
+        <div className="w-20 h-20 rounded-3xl bg-red-50 flex items-center justify-center mx-auto mb-5 text-4xl">❌</div>
+        <h1 className="text-xl font-bold text-gray-900 mb-2 tracking-tight">Xatolik</h1>
         <p className="text-gray-500 text-sm mb-6">{errMsg}</p>
         <button onClick={() => window.Telegram?.WebApp.close()}
-          className="w-full py-3 rounded-2xl font-semibold text-gray-700 bg-gray-200 text-sm">
+          className="w-full py-3.5 rounded-2xl font-semibold text-gray-700 bg-white border border-gray-200 text-sm active:scale-[0.98] transition-transform">
           Yopish
         </button>
       </div>

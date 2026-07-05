@@ -72,20 +72,21 @@ export default function TgStoreOrderDetail() {
 
   return (
     <div>
-      {/* Header */}
-      <div className="px-4 pt-10 pb-5 text-white" style={{ background: `linear-gradient(135deg, ${PRIMARY}, #16A34A)` }}>
-        <button onClick={() => navigate(-1)} className="flex items-center gap-1 text-sm opacity-80 mb-3">
+      {/* Header — gradient hero */}
+      <div className="tgs-hero relative overflow-hidden px-4 pt-10 pb-5 text-white">
+        <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-white/15 blur-2xl" />
+        <button onClick={() => navigate(-1)} className="relative flex items-center gap-1 text-sm opacity-80 mb-3 active:scale-95 transition-transform">
           ← Orqaga
         </button>
-        <div className="flex items-center justify-between">
+        <div className="relative flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold">Buyurtma #{order.orderNumber}</h1>
+            <h1 className="text-xl font-bold tracking-tight">Buyurtma #{order.orderNumber}</h1>
             <p className="text-xs opacity-70 mt-0.5">
               {order.createdAt ? fmtDate(order.createdAt) : ''}
             </p>
           </div>
-          <span className="text-sm font-bold px-3 py-1.5 rounded-xl"
-            style={{ color: s.color, background: 'rgba(255,255,255,0.9)' }}>
+          <span className="text-sm font-bold px-3 py-1.5 rounded-full shadow-md"
+            style={{ color: s.color, background: 'rgba(255,255,255,0.95)' }}>
             {s.emoji} {s.label}
           </span>
         </div>
@@ -95,7 +96,7 @@ export default function TgStoreOrderDetail() {
 
         {/* Status timeline */}
         {!['CANCELLED','RETURNED'].includes(order.status) && (
-          <div className="bg-white rounded-2xl p-4">
+          <div className="tgs-card rounded-2xl p-4">
             <h3 className="font-bold text-gray-900 text-sm mb-4">Buyurtma holati</h3>
             <div className="flex items-center justify-between">
               {STATUS_TIMELINE.map((st, i) => {
@@ -125,7 +126,7 @@ export default function TgStoreOrderDetail() {
 
         {/* Distributor info */}
         {order.distributor && (
-          <div className="bg-white rounded-2xl p-4">
+          <div className="tgs-card rounded-2xl p-4">
             <h3 className="font-bold text-gray-900 text-sm mb-3">Distribyutor</h3>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-lg">🏢</div>
@@ -141,7 +142,7 @@ export default function TgStoreOrderDetail() {
 
         {/* Driver info */}
         {order.driver && (
-          <div className="bg-white rounded-2xl p-4">
+          <div className="tgs-card rounded-2xl p-4">
             <h3 className="font-bold text-gray-900 text-sm mb-3">Kuryer</h3>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-lg">🚗</div>
@@ -156,7 +157,7 @@ export default function TgStoreOrderDetail() {
         )}
 
         {/* Items */}
-        <div className="bg-white rounded-2xl p-4">
+        <div className="tgs-card rounded-2xl p-4">
           <h3 className="font-bold text-gray-900 text-sm mb-3">
             Mahsulotlar ({order.items?.length ?? 0})
           </h3>
@@ -181,7 +182,7 @@ export default function TgStoreOrderDetail() {
         </div>
 
         {/* Payment summary */}
-        <div className="bg-white rounded-2xl p-4">
+        <div className="tgs-card rounded-2xl p-4">
           <h3 className="font-bold text-gray-900 text-sm mb-3">To'lov</h3>
           <div className="flex flex-col gap-2">
             <div className="flex justify-between">
@@ -213,7 +214,7 @@ export default function TgStoreOrderDetail() {
 
         {/* Notes */}
         {order.notes && (
-          <div className="bg-white rounded-2xl p-4">
+          <div className="tgs-card rounded-2xl p-4">
             <h3 className="font-bold text-gray-900 text-sm mb-2">Izoh</h3>
             <p className="text-sm text-gray-600">{order.notes}</p>
           </div>
@@ -224,7 +225,7 @@ export default function TgStoreOrderDetail() {
           <button
             onClick={() => { if (confirm('Buyurtmani bekor qilishni xohlaysizmi?')) cancelMutation.mutate(); }}
             disabled={cancelMutation.isPending}
-            className="w-full py-3.5 rounded-2xl text-red-600 font-semibold text-sm bg-red-50 disabled:opacity-60">
+            className="w-full py-4 rounded-2xl text-red-600 font-semibold text-sm bg-red-50 border border-red-100 disabled:opacity-60 active:scale-[0.98] transition-transform">
             {cancelMutation.isPending ? 'Bekor qilinmoqda...' : '❌ Buyurtmani bekor qilish'}
           </button>
         )}
