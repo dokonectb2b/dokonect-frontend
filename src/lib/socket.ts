@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
 
 // Productionda Vercel proxy orqali (same origin) — Mixed Content xatosini oldini olish
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || window.location.origin;
+const SOCKET_URL = import.meta.env.VITE_DOKONECT_SOCKET_URL || import.meta.env.VITE_SOCKET_URL || window.location.origin;
 
 const socket = io(SOCKET_URL, {
   auth: (cb) => cb({ token: localStorage.getItem('accessToken') }),

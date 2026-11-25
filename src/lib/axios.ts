@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_DOKONECT_API_URL ?? import.meta.env.VITE_API_URL ?? '';
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? '',
+  baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -37,7 +39,7 @@ api.interceptors.response.use(
           return Promise.reject(error);
         }
 
-        const response = await axios.post(`${import.meta.env.VITE_API_URL ?? ''}/api/auth/refresh-token`, { refreshToken });
+        const response = await axios.post(`${API_URL}/api/auth/refresh-token`, { refreshToken });
 
         if (response.data?.token || response.data?.accessToken) {
           const newToken = response.data.token ?? response.data.accessToken;

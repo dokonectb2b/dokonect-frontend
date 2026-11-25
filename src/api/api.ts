@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const API_URL = import.meta.env.VITE_DOKONECT_API_URL ?? import.meta.env.VITE_API_URL ?? '';
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? '',
+  baseURL: API_URL,
   timeout: 60_000,   // ← 60 sekund (Render.com uyg'onishi uchun)
   headers: {
     'Content-Type': 'application/json',
@@ -43,7 +45,7 @@ api.interceptors.response.use(
         }
 
         const response = await axios.post(
-          `${import.meta.env.VITE_API_URL ?? ''}/api/auth/refresh-token`,
+          `${API_URL}/api/auth/refresh-token`,
           { refreshToken },
           { timeout: 30_000 },
         );
