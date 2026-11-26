@@ -1479,7 +1479,10 @@ export default function LandingPage() {
           </div>
         </div>
         <div className="mt-16 border-t border-[#1E2A3A] pt-8 text-sm text-[#64748B] flex flex-col gap-4 md:flex-row md:justify-between md:items-center">
-          <p>{t.footer.copyright}</p>
+          <div className="space-y-1">
+            <p>{t.footer.copyright}</p>
+            <p className="text-[#94A3B8]">QURBONAZAROV ASROR ANORBOY O‘G‘LI</p>
+          </div>
           <div className="flex flex-wrap gap-4">
             <a href="#" className="hover:text-[#22C55E]">{t.footer.privacy}</a>
             <a href="#" className="hover:text-[#22C55E]">{t.footer.terms}</a>
